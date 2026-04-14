@@ -13,7 +13,7 @@ export interface FormData {
   differenceConcurrents: string;
 
   // 02: Objectifs du projet
-  objectifPrincipal: string;
+  objectifPrincipal: string[];
   objectifAutre: string;
   ciblePrincipale: string;
   zonesGeographiques: string;
@@ -76,13 +76,15 @@ export interface FormData {
   adaptabiliteMobile: string;
   pwa: boolean;
 
-  // 08: Référencement & Marketing Digital
-  seoNaturel: string;
-  motsClesPrioritaires: string;
-  googleAnalytics: string;
-  googleAds: string;
-  campagneEmailing: string;
-  gestionReseauxSociaux: string;
+  // 08: Marketing Mix
+  marketingMix: {
+    objectifsMarketing: string[];
+    budgetMarketing: string;
+    canauxPrioritaires: string[];
+    contenuMarketing: string;
+    frequencePublication: string;
+    kpisPrincipaux: string;
+  };
   seoStrategique: string;
   campagnesPPC: string;
   emailMarketing: string;
@@ -117,7 +119,7 @@ export const initialFormData: FormData = {
   phaseEntreprise: '',
   descriptionActivite: '',
   differenceConcurrents: '',
-  objectifPrincipal: '',
+  objectifPrincipal: [],
   objectifAutre: '',
   ciblePrincipale: '',
   zonesGeographiques: '',
@@ -169,12 +171,14 @@ export const initialFormData: FormData = {
   reseauxSociaux: [],
   adaptabiliteMobile: '',
   pwa: false,
-  seoNaturel: '',
-  motsClesPrioritaires: '',
-  googleAnalytics: '',
-  googleAds: '',
-  campagneEmailing: '',
-  gestionReseauxSociaux: '',
+  marketingMix: {
+    objectifsMarketing: [],
+    budgetMarketing: '',
+    canauxPrioritaires: [],
+    contenuMarketing: '',
+    frequencePublication: '',
+    kpisPrincipaux: '',
+  },
   seoStrategique: '',
   campagnesPPC: '',
   emailMarketing: '',

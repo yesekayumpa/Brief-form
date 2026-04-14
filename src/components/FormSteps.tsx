@@ -1,4 +1,5 @@
 import React from 'react';
+import ToggleButtonGroup from './ToggleButtonGroup';
 import { FormData, FormErrors, FormTouched } from '../types';
 import { Check, AlertCircle, Globe, Target, Palette, Box, Settings, BarChart3, Mail, ShieldCheck, Zap, Info, ChartColumn, Settings as SettingsIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -70,40 +71,8 @@ const InputWrapper = ({ label, children, error, touched, description, value }: {
   );
 };
 
-const ToggleButton = ({ label, value, onChange, icon }: { label: string; value: string; onChange: (val: string) => void; icon: React.ReactNode }) => {
-  const options = ['Oui', 'Non', 'Peut-être'];
-  
-  return (
-    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-brand-red/10 transition-all">
-            {icon}
-          </div>
-          <label className="text-sm font-semibold text-slate-700">{label}</label>
-        </div>
-        <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60">
-          {options.map(option => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => onChange(option)}
-              className={`px-3 py-1.5 text-[10px] rounded-md transition-all duration-300 font-medium uppercase tracking-wider ${
-                value === option
-                  ? 'bg-brand-red text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
-const CheckboxGroup = ({ label, options, selected, onChange }: { label: string; options: string[]; selected: string[]; onChange: (val: string[]) => void }) => {
+const CheckboxGroup = ({ label, options, selected, onChange, redTitle }: { label: string; options: string[]; selected: string[]; onChange: (val: string[]) => void; redTitle?: boolean }) => {
   const toggle = (opt: string) => {
     if (selected.includes(opt)) {
       onChange(selected.filter(s => s !== opt));
@@ -114,7 +83,7 @@ const CheckboxGroup = ({ label, options, selected, onChange }: { label: string; 
 
   return (
     <div className="space-y-4">
-      <label className="form-label">{label}</label>
+      <label className={`form-label ${redTitle ? '!text-brand-red !font-bold' : ''}`}>{label}</label>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {options.map(opt => (
           <button
@@ -140,9 +109,9 @@ const CheckboxGroup = ({ label, options, selected, onChange }: { label: string; 
   );
 };
 
-const RadioGroup = ({ label, options, selected, onChange }: { label: string; options: string[]; selected: string; onChange: (val: string) => void }) => (
+const RadioGroup = ({ label, options, selected, onChange, redTitle }: { label: string; options: string[]; selected: string; onChange: (val: string) => void; redTitle?: boolean }) => (
   <div className="space-y-4">
-    <label className="form-label">{label}</label>
+    <label className={`form-label ${redTitle ? '!text-brand-red !font-bold' : ''}`}>{label}</label>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       {options.map(opt => (
         <button
@@ -214,12 +183,14 @@ export const Step1 = ({ formData, updateFormData }: StepProps) => (
       options={['Indépendant / Freelance', 'TPE (1-9 employés)', 'PME (10-49 employés)', 'ETI (50-250 employés)', 'Grand groupe (250+)']} 
       selected={formData.tailleEntreprise} 
       onChange={val => updateFormData({ tailleEntreprise: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Phase de l'entreprise" 
       options={['Lancement / Startup', 'En croissance', 'Établie / Mature', 'En restructuration / Pivot']} 
       selected={formData.phaseEntreprise} 
       onChange={val => updateFormData({ phaseEntreprise: val })} 
+      redTitle={true}
     />
     <InputWrapper label="Description de l'activité" value={formData.descriptionActivite}>
       <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.descriptionActivite} onChange={e => updateFormData({ descriptionActivite: e.target.value })} />
@@ -233,12 +204,12 @@ export const Step1 = ({ formData, updateFormData }: StepProps) => (
 export const Step2 = ({ formData, updateFormData }: StepProps) => (
   <div className="space-y-6">
     <CheckboxGroup 
-      label="Objectif principal du site" 
+      label="Objectifs principaux du site" 
       options={['Crédibiliser / légitimer l\'entreprise', 'Générer des contacts / leads qualifiés', 'Présenter les produits / services', 'Support à la prospection commerciale', 'Vendre en ligne (e-commerce)', 'Recrutement', 'Autre']} 
-      selected={[formData.objectifPrincipal]} 
-      onChange={val => updateFormData({ objectifPrincipal: val[val.length - 1] || '' })} 
+      selected={formData.objectifPrincipal} 
+      onChange={val => updateFormData({ objectifPrincipal: val })} 
     />
-    {formData.objectifPrincipal === 'Autre' && (
+    {formData.objectifPrincipal.includes('Autre') && (
       <InputWrapper label="Si autre, précisez" value={formData.objectifAutre}>
         <input className="field-input" value={formData.objectifAutre} onChange={e => updateFormData({ objectifAutre: e.target.value })} />
       </InputWrapper>
@@ -357,18 +328,21 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
       options={['Le client fournit tous les textes', 'DM+ Com rédige l\'ensemble (prestation supplémentaire)', 'Rédaction partagée — à définir page par page', 'Textes partiellement existants — à compléter']} 
       selected={formData.redacteurTextes} 
       onChange={val => updateFormData({ redacteurTextes: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Qui fournit les visuels / photos ?" 
       options={['Le client fournit photos et visuels', 'DM+ intègre une banque d\'images premium', 'Shooting photo à prévoir (prestation supplémentaire)', 'Mix des deux']} 
       selected={formData.fournisseurVisuels} 
       onChange={val => updateFormData({ fournisseurVisuels: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Avez-vous un logo ?" 
       options={['Oui — fichiers HD disponibles (AI, EPS, PNG)', 'Oui — uniquement en basse résolution', 'Non — création de logo à prévoir', 'En cours de création']} 
       selected={formData.avezLogo} 
       onChange={val => updateFormData({ avezLogo: val })} 
+      redTitle={true}
     />
     {(formData.avezLogo === 'Oui — fichiers HD disponibles (AI, EPS, PNG)' || formData.avezLogo === 'Oui — uniquement en basse résolution') && (
       <div className="mt-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-slate-200/60">
@@ -411,10 +385,11 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
     )}
     
     <RadioGroup 
-      label="Avez-vous une charte graphique ? *" 
+      label="Avez-vous une charte graphique ?" 
       options={['Oui — charte complète disponible', 'Oui — charte partielle / en cours', 'Non — liberté laissée au designer DM+', 'Non — à créer (prestation supplémentaire)']} 
       selected={formData.avezCharte} 
       onChange={val => updateFormData({ avezCharte: val })} 
+      redTitle={true}
     />
     {(formData.avezCharte === 'Oui — charte complète disponible' || formData.avezCharte === 'Oui — charte partielle / en cours') && (
       <div className="mt-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-slate-200/60">
@@ -467,7 +442,7 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-800">Typographie Institutionnelle</h3>
+          <h3 className="text-base font-bold text-slate-800 !text-brand-red">Typographie Institutionnelle</h3>
         </div>
         <button
           type="button"
@@ -571,7 +546,7 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-800">Palette Chromatique</h3>
+          <h3 className="text-base font-bold text-slate-800 !text-brand-red">Palette Chromatique</h3>
           <p className="text-sm text-slate-600 mt-1">Sélectionnez vos couleurs préférées (HEX / RGB / PMS)</p>
         </div>
         <button
@@ -692,7 +667,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
     
     <div className="space-y-8">
       <div>
-        <h3 className="form-label mb-6">Type de site internet</h3>
+        <h3 className="form-label mb-6 !text-brand-red !font-bold">Type de site internet</h3>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <input 
@@ -757,7 +732,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
     
     <div className="space-y-6">
       <div>
-        <h3 className="form-label">Quelle fonctionnalité aimeriez-vous avoir sur votre site internet ?</h3>
+        <h3 className="form-label !text-brand-red !font-bold">Quelle fonctionnalité aimeriez-vous avoir sur votre site internet ?</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { id: 'encart-bannieres', name: 'Encart / bannières publicitaires', icon: '' },
@@ -837,6 +812,7 @@ export const Step7 = ({ formData, updateFormData }: StepProps) => (
       options={['Formulaire de contact', 'Prise de rendez-vous (Calendly...)', 'Paiement en ligne (Stripe...)', 'Espace client / Compte utilisateur', 'Newsletter / Emailing', 'Blog / Actualités', 'Galerie photos / vidéos', 'Carte / Géolocalisation', 'Chat en ligne', 'Multi-langue', 'Statistiques intégrées', 'Autre (préciser)']} 
       selected={formData.fonctionnalitesIntegrer} 
       onChange={val => updateFormData({ fonctionnalitesIntegrer: val })} 
+      redTitle={true} 
     />
     {formData.fonctionnalitesIntegrer.includes('Autre (préciser)') && (
       <InputWrapper label="Si autres fonctionnalités, précisez" value={formData.fonctionnaliteAutre}>
@@ -850,10 +826,11 @@ export const Step7 = ({ formData, updateFormData }: StepProps) => (
       onChange={val => updateFormData({ reseauxSociaux: val })} 
     />
     <RadioGroup 
-      label="Adaptabilité mobile *" 
+      label="Adaptabilité mobile" 
       options={['Site responsive (obligatoire)', 'Application mobile envisagée (ultérieurement)']} 
       selected={formData.adaptabiliteMobile} 
       onChange={val => updateFormData({ adaptabiliteMobile: val })} 
+      redTitle={true}
     />
     <div className="flex items-center gap-4 p-4 bg-white/60 border border-slate-200 rounded-xl">
       <input type="checkbox" checked={formData.pwa} onChange={e => updateFormData({ pwa: e.target.checked })} className="w-5 h-5 accent-brand-red" />
@@ -864,31 +841,188 @@ export const Step7 = ({ formData, updateFormData }: StepProps) => (
 
 export const Step8 = ({ formData, updateFormData }: StepProps) => (
   <div className="space-y-6">
-    <div className="space-y-6">
-      <ToggleButton
-        label="SEO Stratégique"
-        value={formData.seoStrategique}
-        onChange={val => updateFormData({ seoStrategique: val })}
-        icon={<ChartColumn className="w-6 h-6 text-brand-red" />}
+    <div className="mb-8">
+      <h3 className="text-xl font-bold text-brand-dark mb-2 !text-brand-red">Marketing Mix</h3>
+      <p className="text-slate-600 text-sm">Définissez votre stratégie marketing complète</p>
+    </div>
+
+    {/* Objectifs Marketing */}
+    <CheckboxGroup 
+      label="Objectifs Marketing Principaux" 
+      options={[
+        'Notoriété de marque',
+        'Génération de leads',
+        'Conversion et ventes',
+        'Fidélisation client',
+        'Éducation de marché',
+        'Lancement produit',
+        'Autre'
+      ]} 
+      selected={formData.marketingMix.objectifsMarketing} 
+      onChange={val => updateFormData({ 
+        marketingMix: { 
+          ...formData.marketingMix, 
+          objectifsMarketing: val 
+        } 
+      })} 
+      redTitle={true}
+    />
+
+    {/* Budget Marketing */}
+    <InputWrapper label="Budget Marketing Mensuel (€)" value={formData.marketingMix.budgetMarketing}>
+      <input 
+        className="field-input" 
+        value={formData.marketingMix.budgetMarketing} 
+        onChange={e => updateFormData({ 
+          marketingMix: { 
+            ...formData.marketingMix, 
+            budgetMarketing: e.target.value 
+          } 
+        })} 
+        placeholder="Ex: 2000"
       />
-      <ToggleButton
-        label="Campagnes PPC"
-        value={formData.campagnesPPC}
-        onChange={val => updateFormData({ campagnesPPC: val })}
-        icon={<Target className="w-6 h-6 text-brand-red" />}
+    </InputWrapper>
+
+    {/* Canaux Prioritaires */}
+    <CheckboxGroup 
+      label="Canaux Marketing Prioritaires" 
+      options={[
+        'SEO / Référencement naturel',
+        'Google Ads / PPC',
+        'Réseaux Sociaux',
+        'Email Marketing',
+        'Content Marketing',
+        'Marketing d\'influence',
+        'Affiliation',
+        'Publicité programmatique'
+      ]} 
+      selected={formData.marketingMix.canauxPrioritaires} 
+      onChange={val => updateFormData({ 
+        marketingMix: { 
+          ...formData.marketingMix, 
+          canauxPrioritaires: val 
+        } 
+      })} 
+      redTitle={true}
+    />
+
+    {/* Contenu Marketing */}
+    <InputWrapper label="Type de Contenu Marketing Privilégié" value={formData.marketingMix.contenuMarketing}>
+      <div className="!text-brand-red !font-bold form-label"></div>
+      <textarea 
+        className="field-input min-h-[90px] py-2 resize-none" 
+        value={formData.marketingMix.contenuMarketing} 
+        onChange={e => updateFormData({ 
+          marketingMix: { 
+            ...formData.marketingMix, 
+            contenuMarketing: e.target.value 
+          } 
+        })} 
+        placeholder="Articles de blog, vidéos, webinaires, études de cas, infographies..."
       />
-      <ToggleButton
-        label="Email Marketing"
-        value={formData.emailMarketing}
-        onChange={val => updateFormData({ emailMarketing: val })}
-        icon={<Mail className="w-6 h-6 text-brand-red" />}
+    </InputWrapper>
+
+    {/* Fréquence Publication */}
+    <RadioGroup 
+      label="Fréquence de Publication Souhaitée" 
+      options={[
+        'Quotidienne',
+        'Hebdomadaire',
+        'Bi-mensuelle',
+        'Mensuelle',
+        'Trimestrielle',
+        'Selon les campagnes'
+      ]} 
+      selected={formData.marketingMix.frequencePublication} 
+      onChange={val => updateFormData({ 
+        marketingMix: { 
+          ...formData.marketingMix, 
+          frequencePublication: val 
+        } 
+      })} 
+      redTitle={true}
+    />
+
+    {/* KPIs Principaux */}
+    <InputWrapper label="Indicateurs Clés de Performance (KPIs)" value={formData.marketingMix.kpisPrincipaux}>
+      <div className="!text-brand-red !font-bold form-label"></div>
+      <textarea 
+        className="field-input min-h-[80px] py-4 resize-none" 
+        value={formData.marketingMix.kpisPrincipaux} 
+        onChange={e => updateFormData({ 
+          marketingMix: { 
+            ...formData.marketingMix, 
+            kpisPrincipaux: e.target.value 
+          } 
+        })} 
+        placeholder="Trafic organique, taux de conversion, coût par acquisition, ROI, engagement..."
       />
-      <ToggleButton
-        label="Mobile Strategy"
-        value={formData.mobileStrategy}
-        onChange={val => updateFormData({ mobileStrategy: val })}
-        icon={<SettingsIcon className="w-6 h-6 text-brand-red" />}
-      />
+    </InputWrapper>
+
+    {/* Services Marketing Additionnels */}
+    <div className="space-y-3 mt-4">
+      <h4 className="text-sm font-semibold text-brand-dark">Services Marketing Additionnels</h4>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+        <div className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-md border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-slate-50 flex items-center justify-center group-hover:bg-brand-red/10 transition-all">
+                <ChartColumn className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-red" />
+              </div>
+              <label className="text-xs font-semibold text-slate-700">SEO Stratégique</label>
+            </div>
+            <ToggleButtonGroup
+              value={formData.seoStrategique}
+              onChange={val => updateFormData({ seoStrategique: val })}
+            />
+          </div>
+        </div>
+        
+        <div className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-md border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-slate-50 flex items-center justify-center group-hover:bg-brand-red/10 transition-all">
+                <Target className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-red" />
+              </div>
+              <label className="text-xs font-semibold text-slate-700">Campagnes PPC</label>
+            </div>
+            <ToggleButtonGroup
+              value={formData.campagnesPPC}
+              onChange={val => updateFormData({ campagnesPPC: val })}
+            />
+          </div>
+        </div>
+        
+        <div className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-md border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-slate-50 flex items-center justify-center group-hover:bg-brand-red/10 transition-all">
+                <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-red" />
+              </div>
+              <label className="text-xs font-semibold text-slate-700">Email Marketing</label>
+            </div>
+            <ToggleButtonGroup
+              value={formData.emailMarketing}
+              onChange={val => updateFormData({ emailMarketing: val })}
+            />
+          </div>
+        </div>
+        
+        <div className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-md border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-slate-50 flex items-center justify-center group-hover:bg-brand-red/10 transition-all">
+                <SettingsIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-red" />
+              </div>
+              <label className="text-xs font-semibold text-slate-700">Mobile Strategy</label>
+            </div>
+            <ToggleButtonGroup
+              value={formData.mobileStrategy}
+              onChange={val => updateFormData({ mobileStrategy: val })}
+            />
+          </div>
+        </div>
+      </div>
     </div>
     
     <div className="mt-8 p-6 bg-brand-dark rounded-2xl relative overflow-hidden group shadow-lg">
@@ -897,7 +1031,7 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
         <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
           <Info className="w-5 h-5 text-white" />
         </div>
-        <p className="text-sm font-medium leading-relaxed text-white/90">Votre dossier stratégique est prêt pour la validation finale.</p>
+        <p className="text-sm font-medium leading-relaxed text-white/90">Votre stratégie marketing mix est maintenant définie. Prêt pour la validation finale.</p>
       </div>
     </div>
   </div>
@@ -916,6 +1050,7 @@ export const Step9 = ({ formData, updateFormData }: StepProps) => (
       options={['Client autonome (formation back-office incluse)', 'Délégation à DM+ Com (abonnement mensuel)', 'Au cas par cas (facturation séparée)']} 
       selected={formData.misesAJour} 
       onChange={val => updateFormData({ misesAJour: val })} 
+      redTitle={true}
     />
     <CheckboxGroup 
       label="Évolutions futures envisagées" 
@@ -924,6 +1059,7 @@ export const Step9 = ({ formData, updateFormData }: StepProps) => (
       onChange={val => updateFormData({ evolutionsFutures: val[val.length - 1] || '' })} 
     />
     <InputWrapper label="Autres informations utiles" value={formData.autresInfosUtiles}>
+      <div className="!text-brand-red !font-bold form-label"></div>
       <textarea className="field-input min-h-[100px] py-4 resize-none" value={formData.autresInfosUtiles} onChange={e => updateFormData({ autresInfosUtiles: e.target.value })} />
     </InputWrapper>
   </div>
@@ -935,6 +1071,7 @@ export const Step10 = ({ formData, updateFormData }: StepProps) => (
       <div key={i} className="p-6 bg-white/40 border border-slate-200 rounded-2xl space-y-4">
         <label className="form-label">Concurrent {i + 1}</label>
         <InputWrapper label="Nom + URL du site" value={formData.concurrents[i].nom}>
+          <div className="!text-brand-red !font-bold form-label"></div>
           <input className="field-input" value={formData.concurrents[i].nom} onChange={e => {
             const newC = [...formData.concurrents];
             newC[i].nom = e.target.value;
@@ -942,6 +1079,7 @@ export const Step10 = ({ formData, updateFormData }: StepProps) => (
           }} />
         </InputWrapper>
         <InputWrapper label="Ce qu'ils font bien" value={formData.concurrents[i].bien}>
+          <div className="!text-brand-red !font-bold form-label"></div>
           <input className="field-input" value={formData.concurrents[i].bien} onChange={e => {
             const newC = [...formData.concurrents];
             newC[i].bien = e.target.value;
@@ -949,6 +1087,7 @@ export const Step10 = ({ formData, updateFormData }: StepProps) => (
           }} />
         </InputWrapper>
         <InputWrapper label="Ce que vous faites mieux" value={formData.concurrents[i].mieux}>
+          <div className="!text-brand-red !font-bold form-label"></div>
           <input className="field-input" value={formData.concurrents[i].mieux} onChange={e => {
             const newC = [...formData.concurrents];
             newC[i].mieux = e.target.value;

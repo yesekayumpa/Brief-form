@@ -248,7 +248,7 @@ export default function App() {
                     <Globe className="w-3 h-3" />
                     Phase Stratégique
                   </div>
-                  <h2 className={`font-display font-extrabold text-brand-dark leading-[1.05] tracking-tight ${step === 7 || step === 10 ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'}`}>
+                  <h2 className={`font-display font-extrabold text-brand-dark leading-[1.05] tracking-tight ${step === 7 || step === 9 || step === 10 ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'}`}>
                     {step === 1 && <><span className="text-brand-red">Client &</span><br/>Entreprise</>}
                     {step === 2 && <><span className="text-brand-red">Objectifs</span><br/>du Projet</>}
                     {step === 3 && <><span className="text-brand-red">Budget &</span><br/>Délais</>}

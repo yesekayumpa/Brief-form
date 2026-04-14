@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Eye, EyeOff, Lock, Mail, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import BorderGlow from './BorderGlow';
@@ -19,6 +19,51 @@ export default function Login({ onLogin }: LoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Charger les informations sauvegardées au montage du composant
+  useEffect(() => {
+    const savedUserData = localStorage.getItem('userLoginData');
+    if (savedUserData) {
+      try {
+        const userData = JSON.parse(savedUserData);
+        setFullName(userData.fullName || '');
+        setEmail(userData.email || '');
+        setPassword(userData.password || '');
+        setRememberMe(userData.rememberMe || false);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données utilisateur:', error);
+      }
+    }
+  }, []);
+
+  // Sauvegarder les informations utilisateur
+  const saveUserData = (name: string, userEmail: string, userPassword: string, remember: boolean) => {
+    if (remember) {
+      const userData = {
+        fullName: name,
+        email: userEmail,
+        password: userPassword,
+        rememberMe: remember
+      };
+      localStorage.setItem('userLoginData', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('userLoginData');
+    }
+  };
+
+  // Sauvegarder automatiquement lors des changements
+  useEffect(() => {
+    if (rememberMe) {
+      const userData = {
+        fullName,
+        email,
+        password,
+        rememberMe
+      };
+      localStorage.setItem('userLoginData', JSON.stringify(userData));
+    }
+  }, [fullName, email, password, rememberMe]);
 
   const handleGoogleLogin = (name: string, email: string) => {
     setIsLoading(true);
@@ -68,6 +113,9 @@ export default function Login({ onLogin }: LoginProps) {
       return;
     }
 
+    // Sauvegarder les informations si "Se souvenir de moi" est coché
+    saveUserData(fullName, email, password, rememberMe);
+
     // Simuler une inscription réussie
     setTimeout(() => {
       setSuccess('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
@@ -109,6 +157,9 @@ export default function Login({ onLogin }: LoginProps) {
       setIsLoading(false);
       return;
     }
+
+    // Sauvegarder les informations si "Se souvenir de moi" est coché
+    saveUserData(fullName, email, password, rememberMe);
 
     // Simuler une authentification (pour démo)
     setTimeout(() => {
@@ -301,6 +352,21 @@ export default function Login({ onLogin }: LoginProps) {
                     </div>
                   </div>
                 )}
+
+                {/* Remember Me Checkbox */}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 accent-brand-red rounded border-slate-300 focus:ring-2 focus:ring-brand-red/20 transition-all"
+                    />
+                    <span className="text-sm text-slate-600 group-hover:text-slate-800 transition-colors">
+                      Se souvenir de moi
+                    </span>
+                  </label>
+                </div>
 
                 {/* Error Message */}
                 {error && (

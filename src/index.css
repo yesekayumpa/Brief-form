@@ -81,6 +81,10 @@
   @apply text-slate-800 font-bold text-lg mb-4 block;
 }
 
+.form-label.text-brand-red {
+  @apply !text-brand-red;
+}
+
 .text-slate-500 {
   @apply text-slate-600;
 }

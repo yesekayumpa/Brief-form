@@ -100,7 +100,7 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
               </div>
               <h2 className="font-display text-4xl font-bold text-brand-dark mb-4">Projet Initialisé.</h2>
               <p className="text-slate-500 text-lg font-normal mb-8 leading-relaxed max-w-md mx-auto">
-                Votre brief stratégique a été transmis à nos ingénieurs. Nous transformons maintenant votre vision en une réalité technologique de premier plan.
+                Votre brief stratégique a été transmis à nos équipes. Nous transformons maintenant votre vision en une réalité technologique de premier plan.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 

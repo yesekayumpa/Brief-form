@@ -147,7 +147,7 @@ export const generateBriefPDF = (formData: FormData) => {
     startY: (doc as any).lastAutoTable.finalY + 25,
     head: [],
     body: [
-      ['Objectif principal du site', formData.objectifPrincipal + (formData.objectifAutre ? ` (${formData.objectifAutre})` : '')],
+      ['Objectifs principaux du site', formData.objectifPrincipal.length > 0 ? formData.objectifPrincipal.join(', ') + (formData.objectifAutre ? ` (${formData.objectifAutre})` : '') : 'Non spécifié'],
       ['Cible principale du site', formData.ciblePrincipale],
       ['Zones géographiques cibles', formData.zonesGeographiques],
       ['Message clé du site', formData.messageCle],
@@ -273,25 +273,44 @@ export const generateBriefPDF = (formData: FormData) => {
     }
   });
 
-  // --- PAGE 8: SEO & MARKETING ---
-  addSectionHeader('08', "RÉFÉRENCEMENT & MARKETING DIGITAL", (doc as any).lastAutoTable.finalY + 10);
+  // --- PAGE 8: MARKETING MIX ---
+  addSectionHeader('08', "MARKETING MIX", (doc as any).lastAutoTable.finalY + 10);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
     head: [],
     body: [
-      ['SEO — Référencement naturel', formData.seoNaturel],
-      ['Mots-clés prioritaires', formData.motsClesPrioritaires],
-      ['Google Analytics / Suivi', formData.googleAnalytics],
-      ['Google Ads / Publicité', formData.googleAds],
-      ['Campagne emailing', formData.campagneEmailing],
-      ['Gestion réseaux sociaux', formData.gestionReseauxSociaux],
+      ['Objectifs Marketing', formData.marketingMix.objectifsMarketing.length > 0 ? formData.marketingMix.objectifsMarketing.join(', ') : 'Non spécifié'],
+      ['Budget Marketing Mensuel', formData.marketingMix.budgetMarketing || 'Non spécifié'],
+      ['Canaux Prioritaires', formData.marketingMix.canauxPrioritaires.length > 0 ? formData.marketingMix.canauxPrioritaires.join(', ') : 'Non spécifié'],
+      ['Contenu Marketing', formData.marketingMix.contenuMarketing || 'Non spécifié'],
+      ['Fréquence Publication', formData.marketingMix.frequencePublication || 'Non spécifié'],
+      ['KPIs Principaux', formData.marketingMix.kpisPrincipaux || 'Non spécifié'],
     ],
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 5 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
-      1: { cellWidth: pageWidth - 90 }
+      1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
+    }
+  });
+
+  // Services Additionnels
+  autoTable(doc, {
+    startY: (doc as any).lastAutoTable.finalY + 15,
+    head: [['Services Marketing Additionnels', 'Sélection']],
+    body: [
+      ['SEO Stratégique', formData.seoStrategique],
+      ['Campagnes PPC', formData.campagnesPPC],
+      ['Email Marketing', formData.emailMarketing],
+      ['Mobile Strategy', formData.mobileStrategy],
+    ],
+    theme: 'grid',
+    styles: { fontSize: 9, cellPadding: 5 },
+    headStyles: { fillColor: [227, 30, 36], textColor: 255, fontStyle: 'bold' },
+    columnStyles: {
+      0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+      1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
     }
   });
 
