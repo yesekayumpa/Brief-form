@@ -37,6 +37,7 @@ export default function App() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<FormTouched>({});
   const [isProjectInitialized, setIsProjectInitialized] = useState(false);
+  const [validationError, setValidationError] = useState('');
   const [isHovered, setIsHovered] = useState(false);
 
   const handleLogin = (success: boolean, name?: string) => {
@@ -94,28 +95,84 @@ export default function App() {
   };
 
   const isStepValid = () => {
-    return true; // Toujours valide pour les tests
+    // Validation selon l'étape actuelle
+    switch (step) {
+      case 1:
+        return !!(formData.nomEntreprise && formData.secteurActivite && formData.siegeSocial && 
+                 formData.urlSouhaitee && formData.fonctionTitre && formData.emailContact && 
+                 formData.telephone && formData.tailleEntreprise && formData.phaseEntreprise && 
+                 formData.descriptionActivite && formData.differenceConcurrents);
+      
+      case 2:
+        return !!(formData.objectifPrincipal && formData.objectifPrincipal.length > 0 && 
+                 formData.ciblePrincipale && formData.zonesGeographiques && formData.messageCle && 
+                 formData.tonStyle && formData.tonStyle.length > 0 && formData.objectifs12Mois);
+      
+      case 3:
+        return !!(formData.budgetGlobal && formData.modalitesPaiement && formData.delaiLivraison);
+      
+      case 4:
+        return !!(formData.nomDomaineSouhaite && formData.statutDomaine && formData.cmsPrefere && 
+                 formData.hebergement && formData.languesSite);
+      
+      case 5:
+        return !!(formData.redacteurTextes && formData.fournisseurVisuels && formData.avezLogo && 
+                 formData.avezCharte && formData.couleursSouhaitees && formData.typographieSouhaitee && 
+                 formData.sitesReference && formData.ceQueVousNeVoulezPas);
+      
+      case 6:
+        return !!(formData.pagesSouhaitees && formData.pagesSouhaitees.length > 0);
+      
+      case 7:
+        return !!(formData.adaptabiliteMobile);
+      
+      case 8:
+        return !!(formData.marketingMix.objectifsMarketing && formData.marketingMix.objectifsMarketing.length > 0 && 
+                 formData.marketingMix.budgetMarketing && formData.marketingMix.canauxPrioritaires && 
+                 formData.marketingMix.canauxPrioritaires.length > 0 && formData.marketingMix.contenuMarketing && 
+                 formData.marketingMix.frequencePublication && formData.marketingMix.kpisPrincipaux);
+      
+      case 9:
+        return !!(formData.maintenanceSouhaitee && formData.misesAJour && formData.evolutionsFutures && 
+                 formData.autresInfosUtiles);
+      
+      case 10:
+        return true; // Étape finale - pas de validation spécifique
+      
+      default:
+        return true;
+    }
   };
 
   const nextStep = () => {
     if (isStepValid()) {
       if (step < totalSteps) setStep(step + 1);
+      setValidationError(''); // Effacer le message d'erreur si la validation réussit
     } else {
+      // Afficher un message d'erreur pour informer l'utilisateur que des champs sont obligatoires
+      setValidationError('Veuillez remplir tous les champs obligatoires avant de continuer.');
+      
+      // Marquer tous les champs de l'étape actuelle comme "touchés" pour afficher les erreurs
       const stepFields: (keyof FormData)[][] = [
         ['nomEntreprise', 'secteurActivite', 'siegeSocial', 'fonctionTitre', 'emailContact', 'telephone', 'tailleEntreprise', 'phaseEntreprise', 'descriptionActivite', 'differenceConcurrents'],
-        ['objectifPrincipal', 'ciblePrincipale', 'zonesGeographiques', 'messageCle', 'tonStyle'],
-        ['budgetGlobal', 'delaiLivraison'],
-        ['nomDomaineSouhaite', 'languesSite'],
-        ['redacteurTextes', 'fournisseurVisuels', 'avezLogo', 'avezCharte'],
+        ['objectifPrincipal', 'ciblePrincipale', 'zonesGeographiques', 'messageCle', 'tonStyle', 'objectifs12Mois'],
+        ['budgetGlobal', 'modalitesPaiement', 'delaiLivraison'],
+        ['nomDomaineSouhaite', 'statutDomaine', 'cmsPrefere', 'hebergement', 'languesSite'],
+        ['redacteurTextes', 'fournisseurVisuels', 'avezLogo', 'avezCharte', 'couleursSouhaitees', 'typographieSouhaitee', 'sitesReference', 'ceQueVousNeVoulezPas'],
         ['pagesSouhaitees'],
         ['adaptabiliteMobile'],
-        ['seoNaturel'],
-        ['maintenanceSouhaitee'],
+        ['marketingMix'],
+        ['maintenanceSouhaitee', 'misesAJour', 'evolutionsFutures', 'autresInfosUtiles'],
         []
       ];
       const newTouched = { ...touched };
-      stepFields[step - 1].forEach(field => { newTouched[field] = true; });
+      if (stepFields[step - 1]) {
+        stepFields[step - 1].forEach(field => { newTouched[field] = true; });
+      }
       setTouched(newTouched);
+      
+      // Effacer le message d'erreur après 3 secondes
+      setTimeout(() => setValidationError(''), 3000);
     }
   };
 
@@ -362,6 +419,23 @@ export default function App() {
                       {renderStep()}
                     </motion.div>
                   </AnimatePresence>
+
+                   {/* Message d'erreur de validation */}
+                  {validationError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                      <p className="text-red-700 text-sm font-medium">{validationError}</p>
+                    </motion.div>
+                  )}
 
                    {/* Navigation */}
                   <div className="mt-12 pt-10 border-t border-border-light flex items-center justify-between">
