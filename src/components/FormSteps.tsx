@@ -1056,6 +1056,7 @@ export const Step9 = ({ formData, updateFormData }: StepProps) => (
       options={['Maintenance corrective incluse (3 mois)', 'Contrat de maintenance mensuel DM+ Tech', 'Gestion autonome par le client', 'À définir après livraison']} 
       selected={formData.maintenanceSouhaitee} 
       onChange={val => updateFormData({ maintenanceSouhaitee: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Mises à jour du contenu" 
