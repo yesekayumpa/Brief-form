@@ -305,7 +305,7 @@ export default function App() {
                 </div>
                 <div className="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm group hover:border-brand-red/20 transition-all">
                   <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Support</p>
-                  <p className="text-slate-600 text-[10px] font-bold group-hover:text-brand-dark transition-colors truncate">dmplus-group.com</p>
+                  <p className="text-slate-600 text-[10px] font-bold group-hover:text-brand-dark transition-colors truncate">academy@dmplus-group.com</p>
                 </div>
               </div>
             </div>

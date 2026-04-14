@@ -208,6 +208,7 @@ export const Step2 = ({ formData, updateFormData }: StepProps) => (
       options={['Crédibiliser / légitimer l\'entreprise', 'Générer des contacts / leads qualifiés', 'Présenter les produits / services', 'Support à la prospection commerciale', 'Vendre en ligne (e-commerce)', 'Recrutement', 'Autre']} 
       selected={formData.objectifPrincipal} 
       onChange={val => updateFormData({ objectifPrincipal: val })} 
+      redTitle={true}
     />
     {formData.objectifPrincipal.includes('Autre') && (
       <InputWrapper label="Si autre, précisez" value={formData.objectifAutre}>
@@ -219,6 +220,7 @@ export const Step2 = ({ formData, updateFormData }: StepProps) => (
       options={['Grandes entreprises / Groupes internationaux', 'PME / ETI', 'Investisseurs / Fonds', 'Particuliers (B2C)', 'Institutions / ONG / Secteur public', 'Partenaires / Distributeurs']} 
       selected={[formData.ciblePrincipale]} 
       onChange={val => updateFormData({ ciblePrincipale: val[val.length - 1] || '' })} 
+      redTitle={true}
     />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InputWrapper label="Zones géographiques cibles" value={formData.zonesGeographiques}>
@@ -236,6 +238,7 @@ export const Step2 = ({ formData, updateFormData }: StepProps) => (
       options={['Professionnel & institutionnel', 'Moderne & dynamique', 'Premium & haut de gamme', 'Accessible & humain', 'Technique & expert', 'Minimaliste & sobre']} 
       selected={formData.tonStyle} 
       onChange={val => updateFormData({ tonStyle: val })} 
+      redTitle={true}
     />
   </div>
 );
@@ -244,15 +247,17 @@ export const Step3 = ({ formData, updateFormData }: StepProps) => (
   <div className="space-y-6">
     <RadioGroup 
       label="Budget global envisagé" 
-      options={['Moins de 500 000 FCFA', '500 000 — 1 500 000 FCFA', '1 500 000 — 3 000 000 FCFA', '3 000 000 — 5 000 000 FCFA', 'Plus de 5 000 000 FCFA', 'À définir ensemble']} 
+      options={['Moins de 500 000 FCFA', '500 000 - 1 500 000 FCFA', '1 500 000 - 3 000 000 FCFA', '3 000 000 - 5 000 000 FCFA', 'Plus de 5 000 000 FCFA', 'À définir ensemble']} 
       selected={formData.budgetGlobal} 
       onChange={val => updateFormData({ budgetGlobal: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Modalités de paiement souhaitées" 
       options={['100% à la commande', '50% commande / 50% livraison', '30% / 40% / 30% (jalons)', 'Autre (préciser)']} 
       selected={formData.modalitesPaiement} 
       onChange={val => updateFormData({ modalitesPaiement: val })} 
+      redTitle={true}
     />
     {formData.modalitesPaiement === 'Autre (préciser)' && (
       <InputWrapper label="Si autre modalité, précisez" value={formData.modaliteAutre}>
@@ -264,6 +269,7 @@ export const Step3 = ({ formData, updateFormData }: StepProps) => (
       options={['Urgent — moins de 2 semaines', 'Standard — 3 à 5 semaines', 'Flexible — 6 à 8 semaines', 'Pas de contrainte particulière']} 
       selected={formData.delaiLivraison} 
       onChange={val => updateFormData({ delaiLivraison: val })} 
+      redTitle={true}
     />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InputWrapper label="" value={formData.dateMiseEnLigne} description="Date de mise en ligne souhaitée">
@@ -286,12 +292,14 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
       options={['Déjà enregistré — je le fournis', 'À vérifier et enregistrer par DM+', 'Je ne sais pas — besoin de conseil']} 
       selected={formData.statutDomaine} 
       onChange={val => updateFormData({ statutDomaine: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="CMS préféré" 
       options={['Webflow (recommandé premium)', 'WordPress', 'Pas de préférence — conseiller DM+', 'Autre (préciser)']} 
       selected={formData.cmsPrefere} 
       onChange={val => updateFormData({ cmsPrefere: val })} 
+      redTitle={true}
     />
     {formData.cmsPrefere === 'Autre (préciser)' && (
       <InputWrapper label="Si autre CMS, précisez" value={formData.cmsAutre}>
@@ -303,6 +311,7 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
       options={['Inclus dans la prestation DM+', 'J\'ai déjà un hébergeur', 'À définir']} 
       selected={formData.hebergement} 
       onChange={val => updateFormData({ hebergement: val })} 
+      redTitle={true}
     />
     <InputWrapper label="Nom de l'hébergeur actuel (si existant)" value={formData.hebergeurActuel}>
       <input className="field-input" value={formData.hebergeurActuel} onChange={e => updateFormData({ hebergeurActuel: e.target.value })} />
@@ -312,6 +321,7 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
       options={['Français uniquement', 'Anglais uniquement', 'Français + Anglais', 'Autre combinaison (préciser)']} 
       selected={formData.languesSite} 
       onChange={val => updateFormData({ languesSite: val })} 
+      redTitle={true}
     />
     {formData.languesSite === 'Autre combinaison (préciser)' && (
       <InputWrapper label="Si autre combinaison, précisez" value={formData.langueAutre}>
@@ -654,10 +664,11 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
 export const Step6 = ({ formData, updateFormData }: StepProps) => (
   <div className="space-y-6">
     <CheckboxGroup 
-      label="Pages souhaitées *" 
+      label="Pages souhaitées " 
       options={['Accueil / Home', 'À propos / Qui sommes-nous', 'Services / Expertises', 'Réalisations / Portfolio', 'Équipe', 'Zones géographiques', 'Actualités / Blog', 'Témoignages / Références', 'FAQ', 'Contact', 'Mentions légales', 'Autre (préciser)']} 
       selected={formData.pagesSouhaitees} 
       onChange={val => updateFormData({ pagesSouhaitees: val })} 
+      redTitle={true}
     />
     {formData.pagesSouhaitees.includes('Autre (préciser)') && (
       <InputWrapper label="Si autres pages, précisez" value={formData.pagesAutres}>
@@ -824,6 +835,7 @@ export const Step7 = ({ formData, updateFormData }: StepProps) => (
       options={['LinkedIn', 'Instagram', 'Facebook', 'Twitter / X', 'YouTube', 'WhatsApp', 'Aucun']} 
       selected={formData.reseauxSociaux} 
       onChange={val => updateFormData({ reseauxSociaux: val })} 
+      redTitle={true}
     />
     <RadioGroup 
       label="Adaptabilité mobile" 
@@ -961,7 +973,7 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
 
     {/* Services Marketing Additionnels */}
     <div className="space-y-3 mt-4">
-      <h4 className="text-sm font-semibold text-brand-dark">Services Marketing Additionnels</h4>
+      <h4 className="text-sm font-semibold text-brand-dark !text-brand-red">Services Marketing Additionnels</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
         <div className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-md border border-slate-200/60 hover:border-brand-red/20 transition-all duration-300 group shadow-sm hover:shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
@@ -1057,6 +1069,7 @@ export const Step9 = ({ formData, updateFormData }: StepProps) => (
       options={['Ajout de nouvelles pages', 'Intégration e-commerce', 'Application mobile', 'Espace membre / plateforme', 'Aucune évolution prévue']} 
       selected={[formData.evolutionsFutures]} 
       onChange={val => updateFormData({ evolutionsFutures: val[val.length - 1] || '' })} 
+      redTitle={true}
     />
     <InputWrapper label="Autres informations utiles" value={formData.autresInfosUtiles}>
       <div className="!text-brand-red !font-bold form-label"></div>

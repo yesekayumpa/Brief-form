@@ -31,7 +31,7 @@ export const generateBriefPDF = (formData: FormData) => {
     doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
     doc.setFontSize(7);
-    doc.text('communication@dmplus-group.com  |  +221 76 619 34 10 / 33 829 58 06  |  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('academy@dmplus-group.com |  +221 76 619 34 10 / 33 829 58 06  |  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
   };
 
   const addSectionHeader = (num: string, title: string, y: number) => {
