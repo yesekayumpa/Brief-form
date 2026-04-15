@@ -39,7 +39,7 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
 
       if (result.success) {
         setEmailStatus('success');
-        setEmailMessage('Email envoyé avec succès à yesekayumpab@gmail.com !');
+        setEmailMessage('Email envoyé avec succès à communication@dmplus-group.com !');
       } else {
         setEmailStatus('error');
         setEmailMessage(result.message || 'Erreur lors de l\'envoi de l\'email');

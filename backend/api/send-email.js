@@ -13,17 +13,31 @@ export const sendEmail = async (req, res) => {
       },
     });
 
-    // Configuration de l'email
-    const mailOptions = {
+    // Email pour DM+ Group
+    const dmMailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'yesekayumpab@gmail.com', // Email de destination
+      to: 'communication@dmplus-group.com', // Email DM+ Group
       subject: `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'}`,
       html: generateEmailHTML(formData, userName, userEmail),
       attachments: [], // Pour les fichiers PDF si nécessaire
     };
 
-    // Envoyer l'email
-    await transporter.sendMail(mailOptions);
+    // Email de confirmation pour le client
+    let clientMailOptions = null;
+    if (userEmail && userEmail !== 'non spécifié') {
+      clientMailOptions = {
+        from: process.env.EMAIL_USER,
+        to: userEmail,
+        subject: 'Confirmation de réception - Digital Mind+',
+        html: generateClientConfirmationHTML(formData, userName),
+      };
+    }
+
+    // Envoyer les emails
+    await transporter.sendMail(dmMailOptions);
+    if (clientMailOptions) {
+      await transporter.sendMail(clientMailOptions);
+    }
 
     res.status(200).json({ 
       success: true, 
@@ -40,7 +54,57 @@ export const sendEmail = async (req, res) => {
   }
 };
 
-// Fonction pour générer le HTML de l'email
+// Fonction pour générer le HTML de l'email de confirmation client
+function generateClientConfirmationHTML(formData, userName) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Confirmation de réception - Digital Mind+</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #E31E24; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .contact-info { background: white; padding: 15px; border-radius: 5px; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Confirmation de réception</h1>
+          <p>Digital Mind+ - Votre partenaire digital</p>
+        </div>
+        
+        <div class="content">
+          <p>Bonjour ${userName || 'Client'},</p>
+          <p>Nous vous confirmons la bonne réception de votre brief stratégique pour le projet <strong>${formData.nomProjet || 'Projet sans nom'}</strong>.</p>
+          
+          <p>Nos équipes étudient actuellement votre demande et vous contacteront dans les plus brefs délais pour discuter des prochaines étapes.</p>
+          
+          <div class="contact-info">
+            <h3>Pour toute question urgente :</h3>
+            <p><strong>Téléphone :</strong> 76 663 82 20</p>
+            <p><strong>Email :</strong> communication@dmplus-group.com</p>
+          </div>
+          
+          <p>Merci de votre confiance dans Digital Mind+.</p>
+        </div>
+
+        <div class="footer">
+          <p>Cet email a été généré automatiquement depuis la plateforme Digital Mind+</p>
+          <p>© ${new Date().getFullYear()} Digital Mind+ Group - Tous droits réservés</p>
+          <p>Médina rue 37x24, Dakar</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+// Fonction pour générer le HTML de l'email DM+ Group
 function generateEmailHTML(formData, userName, userEmail) {
   return `
     <!DOCTYPE html>
