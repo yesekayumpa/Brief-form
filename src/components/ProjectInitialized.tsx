@@ -4,7 +4,7 @@ import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-reac
 import { FormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
-import { sendEmailNodemailerStyle } from '../utils/nodemailerClient';
+import { sendEmailViaVercelAPI, sendConfirmationEmailToClientVercel } from '../utils/vercelEmailService';
 
 interface ProjectInitializedProps {
   formData: FormData;
@@ -84,15 +84,18 @@ Système automatique Digital Mind+
 Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
-        // Envoyer email à l'entreprise avec Nodemailer
-        const companyResult = await sendEmailNodemailerStyle({
+        // Envoyer email à l'entreprise via API Vercel
+        const companyResult = await sendEmailViaVercelAPI({
           formData,
           userName,
           userEmail: formData.email || 'non spécifié'
         });
 
+        // Attendre 1 seconde avant d'envoyer la confirmation au client
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Envoyer email de confirmation au client
-        const clientResult = await sendConfirmationEmailToClient(formData, userName);
+        const clientResult = await sendConfirmationEmailToClientVercel(formData, userName);
 
         if (companyResult.success && clientResult.success) {
           setEmailStatus('success');
@@ -139,17 +142,24 @@ Cordialement,
 L'équipe Digital Mind+
 ${new Date().toLocaleDateString('fr-FR')}`;
 
-    // Ouvrir le client email du client avec le message de confirmation
-    if (formData.email && formData.email !== 'non spécifié') {
-      window.location.href = `mailto:${formData.email}?subject=${encodeURIComponent(clientSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
+    // Vérifier si l'email du client est valide
+    const clientEmail = formData.email;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (clientEmail && clientEmail !== 'non spécifié' && emailRegex.test(clientEmail)) {
+      console.log('Envoi de la confirmation à:', clientEmail);
+      // Ouvrir dans une nouvelle fenêtre/tab au lieu de rediriger
+      const mailtoLink = `mailto:${clientEmail}?subject=${encodeURIComponent(clientSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
+      window.open(mailtoLink, '_blank');
       return {
         success: true,
-        message: 'Email de confirmation envoyé au client'
+        message: `Email de confirmation envoyé à ${clientEmail}`
       };
     } else {
+      console.log('Email client invalide ou non fourni:', clientEmail);
       return {
         success: true,
-        message: 'Aucun email client à notifier'
+        message: 'Email client invalide ou non fourni'
       };
     }
 
@@ -228,8 +238,8 @@ Système automatique Digital Mind+
 Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
-        // Envoyer email à l'entreprise avec Nodemailer
-        const companyResult = await sendBriefEmailWithNodemailer({
+        // Envoyer email à l'entreprise via API Vercel
+        const companyResult = await sendEmailViaVercelAPI({
           formData,
           userName,
           userEmail: formData.email || 'non spécifié'
