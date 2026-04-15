@@ -6,7 +6,10 @@ export interface EmailData {
 
 export const sendBriefEmail = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await fetch('http://localhost:3001/api/send-email', {
+    // Utiliser l'URL de l'API en production ou localhost en développement
+    const apiUrl = import.meta.env.PROD ? 'https://brief-form-backend.vercel.app/api/send-email' : 'http://localhost:3001/api/send-email';
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

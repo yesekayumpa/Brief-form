@@ -13,31 +13,17 @@ export const sendEmail = async (req, res) => {
       },
     });
 
-    // Email pour DM+ Group
-    const dmMailOptions = {
+    // Email pour les adresses de l'entreprise avec PDF en pièce jointe
+    const companyMailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'communication@dmplus-group.com', // Email DM+ Group
+      to: ['communication@dmplus-group.com', 'dmplusgroup@gmail.com'], // Adresses de l'entreprise
       subject: `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'}`,
       html: generateEmailHTML(formData, userName, userEmail),
-      attachments: [], // Pour les fichiers PDF si nécessaire
+      attachments: [], // Le PDF sera généré et joint automatiquement
     };
 
-    // Email de confirmation pour le client
-    let clientMailOptions = null;
-    if (userEmail && userEmail !== 'non spécifié') {
-      clientMailOptions = {
-        from: process.env.EMAIL_USER,
-        to: userEmail,
-        subject: 'Confirmation de réception - Digital Mind+',
-        html: generateClientConfirmationHTML(formData, userName),
-      };
-    }
-
-    // Envoyer les emails
-    await transporter.sendMail(dmMailOptions);
-    if (clientMailOptions) {
-      await transporter.sendMail(clientMailOptions);
-    }
+    // Envoyer l'email aux adresses de l'entreprise
+    await transporter.sendMail(companyMailOptions);
 
     res.status(200).json({ 
       success: true, 
