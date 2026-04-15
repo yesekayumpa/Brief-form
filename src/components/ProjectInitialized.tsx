@@ -4,7 +4,7 @@ import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-reac
 import { FormData as BriefFormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
-import { sendEmailViaVercelAPI, sendConfirmationEmailToClientVercel } from '../utils/vercelEmailService';
+import { sendEmailViaVercelAPI } from '../utils/vercelEmailService';
 
 interface ProjectInitializedProps {
   formData: BriefFormData;
@@ -91,18 +91,12 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
           userEmail: formData.email || 'non spécifié'
         });
 
-        // Attendre 1 seconde avant d'envoyer la confirmation au client
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Envoyer email de confirmation au client
-        const clientResult = await sendConfirmationEmailToClientVercel(formData, userName);
-
-        if (companyResult.success && clientResult.success) {
+        if (companyResult.success) {
           setEmailStatus('success');
-          setEmailMessage('Emails envoyés automatiquement ! Confirmation envoyée au client et brief reçu par l\'entreprise.');
+          setEmailMessage('Email envoyé automatiquement à dmplusgroup@gmail.com !');
         } else {
           setEmailStatus('error');
-          setEmailMessage('Erreur lors de l\'envoi: ' + (companyResult.message || clientResult.message));
+          setEmailMessage('Erreur lors de l\'envoi: ' + companyResult.message);
         }
       } catch (error) {
         setEmailStatus('error');
@@ -117,61 +111,7 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
     return () => clearTimeout(timer);
   }, [formData, userName]);
 
-  const sendConfirmationEmailToClient = async (formData: BriefFormData, userName: string) => {
-  try {
-    // Email de confirmation pour le client
-    const clientSubject = 'Confirmation de réception de votre brief - Digital Mind+';
-    const clientEmailBody = `Cher ${userName},
-
-Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${formData.nomProjet || 'Projet sans nom'}".
-
-Votre demande est maintenant entre les mains de notre équipe qui va l'étudier avec attention.
-
-Prochaines étapes :
-1. Analyse de votre brief par notre équipe
-2. Contact sous 24-48h pour discuter des détails
-3. Proposition commerciale et planning prévisionnel
-
-Pour toute question urgente :
-- Téléphone : 76 663 82 20
-- Email : communication@dmplus-group.com
-
-Merci de votre confiance dans Digital Mind+.
-
-Cordialement,
-L'équipe Digital Mind+
-${new Date().toLocaleDateString('fr-FR')}`;
-
-    // Vérifier si l'email du client est valide
-    const clientEmail = formData.email;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (clientEmail && clientEmail !== 'non spécifié' && emailRegex.test(clientEmail)) {
-      console.log('Envoi de la confirmation à:', clientEmail);
-      // Ouvrir dans une nouvelle fenêtre/tab au lieu de rediriger
-      const mailtoLink = `mailto:${clientEmail}?subject=${encodeURIComponent(clientSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
-      window.open(mailtoLink, '_blank');
-      return {
-        success: true,
-        message: `Email de confirmation envoyé à ${clientEmail}`
-      };
-    } else {
-      console.log('Email client invalide ou non fourni:', clientEmail);
-      return {
-        success: true,
-        message: 'Email client invalide ou non fourni'
-      };
-    }
-
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi de la confirmation au client:', error);
-    return {
-      success: false,
-      message: 'Erreur lors de l\'envoi de la confirmation'
-    };
-  }
-};
-
+  
 const handleSend = async () => {
     // Fonction manuelle de secours - même logique que l'automatique
     const sendEmailsManually = async () => {
@@ -247,10 +187,10 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
         if (companyResult.success) {
           setEmailStatus('success');
-          setEmailMessage('Email envoyé avec succès à dmplusgroup@gmail.com et confirmation envoyée au client !');
+          setEmailMessage('Email envoyé automatiquement à dmplusgroup@gmail.com !');
         } else {
           setEmailStatus('error');
-          setEmailMessage('Erreur Nodemailer: ' + companyResult.message);
+          setEmailMessage('Erreur lors de l\'envoi: ' + companyResult.message);
         }
       } catch (error) {
         setEmailStatus('error');
