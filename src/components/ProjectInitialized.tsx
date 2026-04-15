@@ -16,6 +16,95 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [emailMessage, setEmailMessage] = useState('');
+
+  useEffect(() => {
+    const sendEmailsAutomatically = async () => {
+      // Generate and download PDF
+      try {
+        generateBriefPDF(formData);
+      } catch (err) {
+        console.error("Erreur lors de la génération du PDF:", err);
+      }
+
+      // Send emails
+      setIsSendingEmail(true);
+      setEmailStatus('idle');
+      setEmailMessage('');
+
+      try {
+        // 1. Envoyer email de confirmation au client
+        const clientEmailSubject = `Confirmation de votre brief stratégique - ${formData.nomProjet || 'Projet sans nom'}`;
+        const clientEmailBody = `Bonjour ${userName},
+
+Nous confirmons la bonne réception de votre brief stratégique pour le projet "${formData.nomProjet || 'Projet sans nom'}".
+
+Nos équipes étudient actuellement votre demande et vous contacteront dans les plus brefs délais pour discuter des prochaines étapes.
+
+Pour toute question urgente :
+- Téléphone : 76 663 82 20
+- Email : communication@dmplus-group.com
+
+Merci de votre confiance dans Digital Mind+.
+
+Cordialement,
+L'équipe Digital Mind+
+
+---
+Cet email a été généré automatiquement depuis la plateforme Digital Mind+
+Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`;
+
+        // Ouvrir client email pour le client
+        window.location.href = `mailto:${formData.email}?subject=${encodeURIComponent(clientEmailSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
+        
+        // Attendre un peu avant d'envoyer le deuxième email
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // 2. Envoyer email avec PDF à l'entreprise
+        const companyEmailSubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'} - Client: ${userName}`;
+        let companyEmailBody = `Bonjour Digital Mind+,
+
+Un nouveau brief stratégique a été soumis :
+
+=== INFORMATIONS CLIENT ===
+Nom: ${userName}
+Email: ${formData.email || 'non spécifié'}
+Téléphone: ${formData.telephone || 'non spécifié'}
+
+=== INFORMATIONS PROJET ===
+Nom du projet: ${formData.nomProjet || 'Non spécifié'}
+Objectif principal: ${formData.objectifPrincipal || 'Non spécifié'}
+Public cible: ${formData.publicCible || 'Non spécifié'}
+Délai de livraison: ${formData.delaiLivraison || 'Non spécifié'}
+Date de mise en ligne: ${formData.dateMiseEnLigne || 'Non spécifié'}
+
+=== BUDGET ===
+Budget alloué: ${formData.budgetAlloue || 'Non spécifié'}
+Modalités de paiement: ${formData.modalitesPaiement || 'Non spécifié'}
+
+Le PDF détaillé est joint à cet email.
+
+Cordialement,
+Système Digital Mind+
+Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`;
+
+        // Ouvrir client email pour l'entreprise avec PDF
+        window.location.href = `mailto:dmplusgroup@gmail.com?subject=${encodeURIComponent(companyEmailSubject)}&body=${encodeURIComponent(companyEmailBody)}`;
+        
+        setEmailStatus('success');
+        setEmailMessage('Emails envoyés automatiquement : confirmation au client et brief avec PDF à l\'entreprise !');
+      } catch (error) {
+        setEmailStatus('error');
+        setEmailMessage('Erreur lors de l\'envoi automatique des emails');
+      } finally {
+        setIsSendingEmail(false);
+      }
+    };
+
+    // Délai de 3 secondes pour s'assurer que la page est complètement chargée
+    const timer = setTimeout(sendEmailsAutomatically, 3000);
+    return () => clearTimeout(timer);
+  }, [formData, userName]);
+
   const handleSend = async () => {
     // Generate and download PDF
     try {
@@ -152,27 +241,6 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
                 >
                   <SquarePen className="w-5 h-5" />
                   Modifier
-                </button>
-                <button 
-                  onClick={handleSend}
-                  disabled={isSendingEmail}
-                  className="btn-primary flex items-center gap-2"
-                >
-                  {isSendingEmail ? (
-                    <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                      />
-                      Envoi en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="w-5 h-5" />
-                      Envoyer
-                    </>
-                  )}
                 </button>
                 <button 
                   onClick={onNewProject}
