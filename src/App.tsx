@@ -181,7 +181,6 @@ export default function App() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('handleSubmit called - setting project initialized');
     setIsProjectInitialized(true);
     
     confetti({
@@ -214,9 +213,7 @@ export default function App() {
     return <Login onLogin={handleLogin} />;
   }
 
-  console.log('Rendering check - isProjectInitialized:', isProjectInitialized, 'step:', step);
   if (isProjectInitialized) {
-    console.log('Rendering ProjectInitialized component');
     return (
       <ProjectInitialized 
         formData={formData} 

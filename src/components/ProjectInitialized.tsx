@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-react';
 import { FormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
+import { sendEmailNodemailerStyle } from '../utils/nodemailerClient';
 
 interface ProjectInitializedProps {
   formData: FormData;
@@ -17,6 +18,7 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [emailMessage, setEmailMessage] = useState('');
 
+  // Envoyer automatiquement les emails au chargement du composant
   useEffect(() => {
     const sendEmailsAutomatically = async () => {
       // Generate and download PDF
@@ -26,105 +28,17 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
         console.error("Erreur lors de la génération du PDF:", err);
       }
 
-      // Send emails
       setIsSendingEmail(true);
       setEmailStatus('idle');
       setEmailMessage('');
 
       try {
-        // 1. Envoyer email de confirmation au client
-        const clientEmailSubject = `Confirmation de votre brief stratégique - ${formData.nomProjet || 'Projet sans nom'}`;
-        const clientEmailBody = `Bonjour ${userName},
-
-Nous confirmons la bonne réception de votre brief stratégique pour le projet "${formData.nomProjet || 'Projet sans nom'}".
-
-Nos équipes étudient actuellement votre demande et vous contacteront dans les plus brefs délais pour discuter des prochaines étapes.
-
-Pour toute question urgente :
-- Téléphone : 76 663 82 20
-- Email : communication@dmplus-group.com
-
-Merci de votre confiance dans Digital Mind+.
-
-Cordialement,
-L'équipe Digital Mind+
-
----
-Cet email a été généré automatiquement depuis la plateforme Digital Mind+
-Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`;
-
-        // Ouvrir client email pour le client
-        window.location.href = `mailto:${formData.email}?subject=${encodeURIComponent(clientEmailSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
+        // 1. Email pour l'entreprise avec toutes les informations
+        const companySubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'} - ${userName}`;
         
-        // Attendre un peu avant d'envoyer le deuxième email
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const companyEmailBody = `Bonjour Digital Mind+,
 
-        // 2. Envoyer email avec PDF à l'entreprise
-        const companyEmailSubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'} - Client: ${userName}`;
-        let companyEmailBody = `Bonjour Digital Mind+,
-
-Un nouveau brief stratégique a été soumis :
-
-=== INFORMATIONS CLIENT ===
-Nom: ${userName}
-Email: ${formData.email || 'non spécifié'}
-Téléphone: ${formData.telephone || 'non spécifié'}
-
-=== INFORMATIONS PROJET ===
-Nom du projet: ${formData.nomProjet || 'Non spécifié'}
-Objectif principal: ${formData.objectifPrincipal || 'Non spécifié'}
-Public cible: ${formData.publicCible || 'Non spécifié'}
-Délai de livraison: ${formData.delaiLivraison || 'Non spécifié'}
-Date de mise en ligne: ${formData.dateMiseEnLigne || 'Non spécifié'}
-
-=== BUDGET ===
-Budget alloué: ${formData.budgetAlloue || 'Non spécifié'}
-Modalités de paiement: ${formData.modalitesPaiement || 'Non spécifié'}
-
-Le PDF détaillé est joint à cet email.
-
-Cordialement,
-Système Digital Mind+
-Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`;
-
-        // Ouvrir client email pour l'entreprise avec PDF
-        window.location.href = `mailto:dmplusgroup@gmail.com?subject=${encodeURIComponent(companyEmailSubject)}&body=${encodeURIComponent(companyEmailBody)}`;
-        
-        setEmailStatus('success');
-        setEmailMessage('Emails envoyés automatiquement : confirmation au client et brief avec PDF à l\'entreprise !');
-      } catch (error) {
-        setEmailStatus('error');
-        setEmailMessage('Erreur lors de l\'envoi automatique des emails');
-      } finally {
-        setIsSendingEmail(false);
-      }
-    };
-
-    // Délai de 3 secondes pour s'assurer que la page est complètement chargée
-    const timer = setTimeout(sendEmailsAutomatically, 3000);
-    return () => clearTimeout(timer);
-  }, [formData, userName]);
-
-  const handleSend = async () => {
-    // Generate and download PDF
-    try {
-      generateBriefPDF(formData);
-    } catch (err) {
-      console.error("Erreur lors de la génération du PDF:", err);
-    }
-
-    // Direct email using client email application
-    setIsSendingEmail(true);
-    setEmailStatus('idle');
-    setEmailMessage('');
-
-    try {
-      // Créer le contenu de l'email détaillé
-      const emailSubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'}`;
-      
-      let emailBody = `Bonjour Digital Mind+,
-
-Voici les informations complètes du nouveau brief stratégique :
+NOUVEAU BRIEF STRATÉGIQUE REÇU
 
 === INFORMATIONS CLIENT ===
 Nom: ${userName}
@@ -161,27 +75,182 @@ Analyse concurrentielle: ${formData.analyseConcurrentielle || 'Non spécifié'}
 Type de maintenance: ${formData.typeMaintenance || 'Non spécifié'}
 Fonctionnalités à intégrer: ${Array.isArray(formData.fonctionnalitesIntegrer) ? formData.fonctionnalitesIntegrer.join(', ') : formData.fonctionnalitesIntegrer || 'Non spécifié'}
 
-Veuillez trouver le PDF détaillé en pièce jointe.
+Le PDF détaillé est généré et disponible pour téléchargement.
+
+Veuillez contacter le client pour finaliser son projet.
 
 Cordialement,
-${userName}
-
----
-Cet email a été généré automatiquement depuis la plateforme Digital Mind+
+Système automatique Digital Mind+
 Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
-      // Ouvrir le client email par défaut avec les adresses de l'entreprise
-      window.location.href = `mailto:communication@dmplus-group.com,dmplusgroup@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      
-      setEmailStatus('success');
-      setEmailMessage('Client email ouvert avec toutes les informations. Veuillez ajouter le PDF en pièce jointe et envoyer.');
-    } catch (error) {
-      setEmailStatus('error');
-      setEmailMessage('Erreur lors de l\'ouverture du client email');
-    } finally {
-      setIsSendingEmail(false);
+        // Envoyer email à l'entreprise avec Nodemailer
+        const companyResult = await sendEmailNodemailerStyle({
+          formData,
+          userName,
+          userEmail: formData.email || 'non spécifié'
+        });
+
+        // Envoyer email de confirmation au client
+        const clientResult = await sendConfirmationEmailToClient(formData, userName);
+
+        if (companyResult.success && clientResult.success) {
+          setEmailStatus('success');
+          setEmailMessage('Emails envoyés automatiquement ! Confirmation envoyée au client et brief reçu par l\'entreprise.');
+        } else {
+          setEmailStatus('error');
+          setEmailMessage('Erreur lors de l\'envoi: ' + (companyResult.message || clientResult.message));
+        }
+      } catch (error) {
+        setEmailStatus('error');
+        setEmailMessage('Erreur lors de l\'envoi automatique des emails');
+      } finally {
+        setIsSendingEmail(false);
+      }
+    };
+
+    // Délai de 2 secondes pour s'assurer que la page est complètement chargée
+    const timer = setTimeout(sendEmailsAutomatically, 2000);
+    return () => clearTimeout(timer);
+  }, [formData, userName]);
+
+  const sendConfirmationEmailToClient = async (formData: FormData, userName: string) => {
+  try {
+    // Email de confirmation pour le client
+    const clientSubject = 'Confirmation de réception de votre brief - Digital Mind+';
+    const clientEmailBody = `Cher ${userName},
+
+Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${formData.nomProjet || 'Projet sans nom'}".
+
+Votre demande est maintenant entre les mains de notre équipe qui va l'étudier avec attention.
+
+Prochaines étapes :
+1. Analyse de votre brief par notre équipe
+2. Contact sous 24-48h pour discuter des détails
+3. Proposition commerciale et planning prévisionnel
+
+Pour toute question urgente :
+- Téléphone : 76 663 82 20
+- Email : communication@dmplus-group.com
+
+Merci de votre confiance dans Digital Mind+.
+
+Cordialement,
+L'équipe Digital Mind+
+${new Date().toLocaleDateString('fr-FR')}`;
+
+    // Ouvrir le client email du client avec le message de confirmation
+    if (formData.email && formData.email !== 'non spécifié') {
+      window.location.href = `mailto:${formData.email}?subject=${encodeURIComponent(clientSubject)}&body=${encodeURIComponent(clientEmailBody)}`;
+      return {
+        success: true,
+        message: 'Email de confirmation envoyé au client'
+      };
+    } else {
+      return {
+        success: true,
+        message: 'Aucun email client à notifier'
+      };
     }
+
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la confirmation au client:', error);
+    return {
+      success: false,
+      message: 'Erreur lors de l\'envoi de la confirmation'
+    };
+  }
+};
+
+const handleSend = async () => {
+    // Fonction manuelle de secours - même logique que l'automatique
+    const sendEmailsManually = async () => {
+      // Generate and download PDF
+      try {
+        generateBriefPDF(formData);
+      } catch (err) {
+        console.error("Erreur lors de la génération du PDF:", err);
+      }
+
+      setIsSendingEmail(true);
+      setEmailStatus('idle');
+      setEmailMessage('');
+
+      try {
+        // 1. Email pour l'entreprise avec toutes les informations
+        const companySubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'} - ${userName}`;
+        
+        const companyEmailBody = `Bonjour Digital Mind+,
+
+NOUVEAU BRIEF STRATÉGIQUE REÇU
+
+=== INFORMATIONS CLIENT ===
+Nom: ${userName}
+Email: ${formData.email || 'non spécifié'}
+Téléphone: ${formData.telephone || 'non spécifié'}
+
+=== INFORMATIONS PROJET ===
+Nom du projet: ${formData.nomProjet || 'Non spécifié'}
+Objectif principal: ${formData.objectifPrincipal || 'Non spécifié'}
+Public cible: ${formData.publicCible || 'Non spécifié'}
+Délai de livraison: ${formData.delaiLivraison || 'Non spécifié'}
+Date de mise en ligne: ${formData.dateMiseEnLigne || 'Non spécifié'}
+Contraintes particulières: ${formData.contraintesParticulieres || 'Aucune'}
+
+=== BUDGET ===
+Budget alloué: ${formData.budgetAlloue || 'Non spécifié'}
+Modalités de paiement: ${formData.modalitesPaiement || 'Non spécifié'}
+
+=== DESIGN ET CONTENU ===
+Couleurs institutionnelles: ${formData.couleursInstitutionnelles || 'Non spécifié'}
+Typographie: ${formData.typographieSelectionnee || 'Non spécifié'}
+Langues du site: ${formData.languesSite || 'Non spécifié'}
+
+=== FONCTIONNALITÉS ===
+Pages souhaitées: ${Array.isArray(formData.pagesSouhaitees) ? formData.pagesSouhaitees.join(', ') : formData.pagesSouhaitees || 'Non spécifié'}
+Fonctionnalités principales: ${Array.isArray(formData.fonctionnalitesSite) ? formData.fonctionnalitesSite.join(', ') : formData.fonctionnalitesSite || 'Non spécifié'}
+
+=== SEO ET MARKETING ===
+Objectifs SEO: ${formData.objectifsSEO || 'Non spécifié'}
+Mots-clés principaux: ${formData.motsClesPrincipaux || 'Non spécifié'}
+Analyse concurrentielle: ${formData.analyseConcurrentielle || 'Non spécifié'}
+
+=== MAINTENANCE ===
+Type de maintenance: ${formData.typeMaintenance || 'Non spécifié'}
+Fonctionnalités à intégrer: ${Array.isArray(formData.fonctionnalitesIntegrer) ? formData.fonctionnalitesIntegrer.join(', ') : formData.fonctionnalitesIntegrer || 'Non spécifié'}
+
+Le PDF détaillé est généré et disponible pour téléchargement.
+
+Veuillez contacter le client pour finaliser son projet.
+
+Cordialement,
+Système automatique Digital Mind+
+Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
+Contact: 76 663 82 20 | communication@dmplus-group.com`;
+
+        // Envoyer email à l'entreprise avec Nodemailer
+        const companyResult = await sendBriefEmailWithNodemailer({
+          formData,
+          userName,
+          userEmail: formData.email || 'non spécifié'
+        });
+
+        if (companyResult.success) {
+          setEmailStatus('success');
+          setEmailMessage('Email envoyé avec succès à dmplusgroup@gmail.com et confirmation envoyée au client !');
+        } else {
+          setEmailStatus('error');
+          setEmailMessage('Erreur Nodemailer: ' + companyResult.message);
+        }
+      } catch (error) {
+        setEmailStatus('error');
+        setEmailMessage('Erreur lors de l\'envoi de l\'email');
+      } finally {
+        setIsSendingEmail(false);
+      }
+    };
+
+    await sendEmailsManually();
   };
 
   return (
