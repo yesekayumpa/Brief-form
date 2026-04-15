@@ -172,8 +172,15 @@ export default function App() {
     if (isStepValid()) {
       if (step < totalSteps) setStep(step + 1);
     } else {
-      // Passer directement à l'étape suivante sans validation
-      if (step < totalSteps) setStep(step + 1);
+      // Afficher un message d'erreur
+      alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
+      
+      // Faire défiler vers le premier champ vide
+      const firstEmptyField = document.querySelector('input:invalid, textarea:invalid, .field-input[required]:not([value])');
+      if (firstEmptyField) {
+        firstEmptyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstEmptyField.focus();
+      }
     }
   };
 
@@ -181,14 +188,18 @@ export default function App() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProjectInitialized(true);
-    
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#E31E24', '#1A1C21', '#F8F9FB']
-    });
+    if (isStepValid()) {
+      setIsProjectInitialized(true);
+      
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#E31E24', '#1A1C21', '#F8F9FB']
+      });
+    } else {
+      alert('Veuillez remplir tous les champs obligatoires avant de soumettre le formulaire.');
+    }
   };
 
   const renderStep = () => {

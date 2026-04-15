@@ -71,7 +71,36 @@ export default function Login({ onLogin }: LoginProps) {
     setError('');
     setSuccess('');
 
-    // Pas de validation pour les tests
+    // Validation des champs
+    if (!fullName.trim()) {
+      setError('Le nom complet est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('L\'email est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Le mot de passe est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      setIsLoading(false);
+      return;
+    }
 
     // Sauvegarder les informations si "Se souvenir de moi" est coché
     saveUserData(fullName, email, password, rememberMe);
@@ -93,7 +122,30 @@ export default function Login({ onLogin }: LoginProps) {
     setIsLoading(true);
     setError('');
 
-    // Pas de validation pour les tests
+    // Validation des champs
+    if (!fullName.trim()) {
+      setError('Le nom complet est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('L\'email est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Le mot de passe est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
+      setIsLoading(false);
+      return;
+    }
 
     // Sauvegarder les informations si "Se souvenir de moi" est coché
     saveUserData(fullName, email, password, rememberMe);
@@ -201,6 +253,7 @@ export default function Login({ onLogin }: LoginProps) {
                       onChange={(e) => setFullName(e.target.value)}
                       className="w-full pl-10 pr-3.5 py-3 bg-white/80 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all text-sm"
                       placeholder="Jean Dupont"
+                      required
                     />
                   </div>
                 </div>
@@ -220,6 +273,7 @@ export default function Login({ onLogin }: LoginProps) {
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full pl-10 pr-3.5 py-3 bg-white/80 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all text-sm"
                       placeholder="admin@digitalmind.com"
+                      required
                     />
                   </div>
                 </div>
@@ -239,6 +293,7 @@ export default function Login({ onLogin }: LoginProps) {
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-10 pr-10 py-3 bg-white/80 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all text-sm"
                       placeholder="DigitalMind2024"
+                      required
                     />
                     <button
                       type="button"
