@@ -267,7 +267,7 @@ export const Step3 = ({ formData, updateFormData }: StepProps) => (
     />
     {formData.modalitesPaiement === 'Autre (préciser)' && (
       <InputWrapper label="Si autre modalité, précisez" value={formData.modaliteAutre}>
-        <input className="field-input" value={formData.modaliteAutre} onChange={e => updateFormData({ modaliteAutre: e.target.value })} required />
+        <input className="field-input" value={formData.modaliteAutre} onChange={e => updateFormData({ modaliteAutre: e.target.value })} />
       </InputWrapper>
     )}
     <RadioGroup 
@@ -279,10 +279,10 @@ export const Step3 = ({ formData, updateFormData }: StepProps) => (
     />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InputWrapper label="" value={formData.dateMiseEnLigne} description="Date de mise en ligne souhaitée">
-        <input type="date" className="field-input" value={formData.dateMiseEnLigne} onChange={e => updateFormData({ dateMiseEnLigne: e.target.value })} required />
+        <input type="date" className="field-input" value={formData.dateMiseEnLigne} onChange={e => updateFormData({ dateMiseEnLigne: e.target.value })} />
       </InputWrapper>
       <InputWrapper label="" value={formData.contraintesParticulieres} description="Contraintes particulières">
-        <textarea className="field-input h-[60px] py-4 resize-none" value={formData.contraintesParticulieres} onChange={e => updateFormData({ contraintesParticulieres: e.target.value })} required />
+        <textarea className="field-input h-[60px] py-4 resize-none" value={formData.contraintesParticulieres} onChange={e => updateFormData({ contraintesParticulieres: e.target.value })} />
       </InputWrapper>
     </div>
   </div>
@@ -291,7 +291,7 @@ export const Step3 = ({ formData, updateFormData }: StepProps) => (
 export const Step4 = ({ formData, updateFormData }: StepProps) => (
   <div className="space-y-6">
     <InputWrapper label="Nom de domaine souhaité" value={formData.nomDomaineSouhaite}>
-      <input className="field-input" value={formData.nomDomaineSouhaite} onChange={e => updateFormData({ nomDomaineSouhaite: e.target.value })} required />
+      <input className="field-input" value={formData.nomDomaineSouhaite} onChange={e => updateFormData({ nomDomaineSouhaite: e.target.value })} />
     </InputWrapper>
     <RadioGroup 
       label="Statut du nom de domaine" 
@@ -309,7 +309,7 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
     />
     {formData.cmsPrefere === 'Autre (préciser)' && (
       <InputWrapper label="Si autre CMS, précisez" value={formData.cmsAutre}>
-        <input className="field-input" value={formData.cmsAutre} onChange={e => updateFormData({ cmsAutre: e.target.value })} required />
+        <input className="field-input" value={formData.cmsAutre} onChange={e => updateFormData({ cmsAutre: e.target.value })} />
       </InputWrapper>
     )}
     <RadioGroup 
@@ -320,7 +320,7 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
       redTitle={true}
     />
     <InputWrapper label="Nom de l'hébergeur actuel (si existant)" value={formData.hebergeurActuel}>
-      <input className="field-input" value={formData.hebergeurActuel} onChange={e => updateFormData({ hebergeurActuel: e.target.value })} required />
+      <input className="field-input" value={formData.hebergeurActuel} onChange={e => updateFormData({ hebergeurActuel: e.target.value })} />
     </InputWrapper>
     <RadioGroup 
       label="Langues du site" 
@@ -331,7 +331,7 @@ export const Step4 = ({ formData, updateFormData }: StepProps) => (
     />
     {formData.languesSite === 'Autre combinaison (préciser)' && (
       <InputWrapper label="Si autre combinaison, précisez" value={formData.langueAutre}>
-        <input className="field-input" value={formData.langueAutre} onChange={e => updateFormData({ langueAutre: e.target.value })} required />
+        <input className="field-input" value={formData.langueAutre} onChange={e => updateFormData({ langueAutre: e.target.value })} />
       </InputWrapper>
     )}
   </div>
@@ -448,10 +448,10 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
     )}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InputWrapper label="Couleurs souhaitées pour le site" value={formData.couleursSouhaitees}>
-        <input className="field-input" value={formData.couleursSouhaitees} onChange={e => updateFormData({ couleursSouhaitees: e.target.value })} required />
+        <input className="field-input" value={formData.couleursSouhaitees} onChange={e => updateFormData({ couleursSouhaitees: e.target.value })} />
       </InputWrapper>
       <InputWrapper label="Typographie souhaitée" value={formData.typographieSouhaitee}>
-        <input className="field-input" value={formData.typographieSouhaitee} onChange={e => updateFormData({ typographieSouhaitee: e.target.value })} required />
+        <input className="field-input" value={formData.typographieSouhaitee} onChange={e => updateFormData({ typographieSouhaitee: e.target.value })} />
       </InputWrapper>
     </div>
     
@@ -552,7 +552,6 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
                   value={formData.typographieAutre} 
                   onChange={e => updateFormData({ typographieAutre: e.target.value })} 
                   placeholder="Entrez le nom de votre typographie personnalisée"
-                  required
                 />
               </InputWrapper>
             </div>
@@ -660,10 +659,10 @@ export const Step5 = ({ formData, updateFormData }: StepProps) => (
       )}
     </div>
     <InputWrapper label="Sites de référence appréciés" value={formData.sitesReference}>
-      <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.sitesReference} onChange={e => updateFormData({ sitesReference: e.target.value })} required />
+      <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.sitesReference} onChange={e => updateFormData({ sitesReference: e.target.value })} />
     </InputWrapper>
     <InputWrapper label="Ce que vous ne voulez absolument pas" value={formData.ceQueVousNeVoulezPas}>
-      <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.ceQueVousNeVoulezPas} onChange={e => updateFormData({ ceQueVousNeVoulezPas: e.target.value })} required />
+      <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.ceQueVousNeVoulezPas} onChange={e => updateFormData({ ceQueVousNeVoulezPas: e.target.value })} />
     </InputWrapper>
   </div>
 );
@@ -679,7 +678,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
     />
     {formData.pagesSouhaitees.includes('Autre (préciser)') && (
       <InputWrapper label="Si autres pages, précisez" value={formData.pagesAutres}>
-        <input className="field-input" value={formData.pagesAutres} onChange={e => updateFormData({ pagesAutres: e.target.value })} required />
+        <input className="field-input" value={formData.pagesAutres} onChange={e => updateFormData({ pagesAutres: e.target.value })} />
       </InputWrapper>
     )}
     
@@ -808,16 +807,16 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
 
     {formData.fonctionnalitesSite.includes('autres') && (
       <InputWrapper label="Précisez les autres fonctionnalités souhaitées" value={formData.autresFonctionnalites}>
-        <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.autresFonctionnalites} onChange={e => updateFormData({ autresFonctionnalites: e.target.value })} required />
+        <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.autresFonctionnalites} onChange={e => updateFormData({ autresFonctionnalites: e.target.value })} />
       </InputWrapper>
     )}
     
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InputWrapper label="Arborescence souhaitée" value={formData.arborescenceSouhaitee}>
-        <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.arborescenceSouhaitee} onChange={e => updateFormData({ arborescenceSouhaitee: e.target.value })} required />
+        <textarea className="field-input min-h-[80px] py-4 resize-none" value={formData.arborescenceSouhaitee} onChange={e => updateFormData({ arborescenceSouhaitee: e.target.value })} />
       </InputWrapper>
       <InputWrapper label="Page(s) prioritaire(s)" value={formData.pagePrioritaire}>
-        <input className="field-input" value={formData.pagePrioritaire} onChange={e => updateFormData({ pagePrioritaire: e.target.value })} required />
+        <input className="field-input" value={formData.pagePrioritaire} onChange={e => updateFormData({ pagePrioritaire: e.target.value })} />
       </InputWrapper>
     </div>
   </div>
@@ -898,8 +897,7 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
             budgetMarketing: e.target.value 
           } 
         })} 
-        placeholder="Ex: 500 000 FCFA / mois"
-        required
+        placeholder="Ex: 2000"
       />
     </InputWrapper>
 
@@ -930,7 +928,7 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
     <InputWrapper label="Type de Contenu Marketing Privilégié" value={formData.marketingMix.contenuMarketing}>
       <div className="!text-brand-red !font-bold form-label"></div>
       <textarea 
-        className="field-input min-h-[80px] py-4 resize-none" 
+        className="field-input min-h-[90px] py-2 resize-none" 
         value={formData.marketingMix.contenuMarketing} 
         onChange={e => updateFormData({ 
           marketingMix: { 
@@ -938,8 +936,7 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
             contenuMarketing: e.target.value 
           } 
         })} 
-        placeholder="Articles de blog, études de cas, tutoriels, vidéos, infographies..."
-        required
+        placeholder="Articles de blog, vidéos, webinaires, études de cas, infographies..."
       />
     </InputWrapper>
 
@@ -977,7 +974,6 @@ export const Step8 = ({ formData, updateFormData }: StepProps) => (
           } 
         })} 
         placeholder="Trafic organique, taux de conversion, coût par acquisition, ROI, engagement..."
-        required
       />
     </InputWrapper>
 
@@ -1084,7 +1080,7 @@ export const Step9 = ({ formData, updateFormData }: StepProps) => (
     />
     <InputWrapper label="Autres informations utiles" value={formData.autresInfosUtiles}>
       <div className="!text-brand-red !font-bold form-label"></div>
-      <textarea className="field-input min-h-[100px] py-4 resize-none" value={formData.autresInfosUtiles} onChange={e => updateFormData({ autresInfosUtiles: e.target.value })} required />
+      <textarea className="field-input min-h-[100px] py-4 resize-none" value={formData.autresInfosUtiles} onChange={e => updateFormData({ autresInfosUtiles: e.target.value })} />
     </InputWrapper>
   </div>
 );
