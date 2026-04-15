@@ -4,7 +4,6 @@ import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-reac
 import { FormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
-import { sendBriefEmail } from '../utils/emailService';
 
 interface ProjectInitializedProps {
   formData: FormData;
@@ -25,28 +24,72 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
       console.error("Erreur lors de la génération du PDF:", err);
     }
 
-    // Send email
+    // Direct email using client email application
     setIsSendingEmail(true);
     setEmailStatus('idle');
     setEmailMessage('');
 
     try {
-      const result = await sendBriefEmail({
-        formData,
-        userName,
-        userEmail: formData.email || 'non spécifié'
-      });
+      // Créer le contenu de l'email détaillé
+      const emailSubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'}`;
+      
+      let emailBody = `Bonjour Digital Mind+,
 
-      if (result.success) {
-        setEmailStatus('success');
-        setEmailMessage('Email envoyé avec succès à yesekayumpab@gmail.com !');
-      } else {
-        setEmailStatus('error');
-        setEmailMessage(result.message || 'Erreur lors de l\'envoi de l\'email');
-      }
+Voici les informations complètes du nouveau brief stratégique :
+
+=== INFORMATIONS CLIENT ===
+Nom: ${userName}
+Email: ${formData.email || 'non spécifié'}
+Téléphone: ${formData.telephone || 'non spécifié'}
+
+=== INFORMATIONS PROJET ===
+Nom du projet: ${formData.nomProjet || 'Non spécifié'}
+Objectif principal: ${formData.objectifPrincipal || 'Non spécifié'}
+Public cible: ${formData.publicCible || 'Non spécifié'}
+Délai de livraison: ${formData.delaiLivraison || 'Non spécifié'}
+Date de mise en ligne: ${formData.dateMiseEnLigne || 'Non spécifié'}
+Contraintes particulières: ${formData.contraintesParticulieres || 'Aucune'}
+
+=== BUDGET ===
+Budget alloué: ${formData.budgetAlloue || 'Non spécifié'}
+Modalités de paiement: ${formData.modalitesPaiement || 'Non spécifié'}
+
+=== DESIGN ET CONTENU ===
+Couleurs institutionnelles: ${formData.couleursInstitutionnelles || 'Non spécifié'}
+Typographie: ${formData.typographieSelectionnee || 'Non spécifié'}
+Langues du site: ${formData.languesSite || 'Non spécifié'}
+
+=== FONCTIONNALITÉS ===
+Pages souhaitées: ${Array.isArray(formData.pagesSouhaitees) ? formData.pagesSouhaitees.join(', ') : formData.pagesSouhaitees || 'Non spécifié'}
+Fonctionnalités principales: ${Array.isArray(formData.fonctionnalitesSite) ? formData.fonctionnalitesSite.join(', ') : formData.fonctionnalitesSite || 'Non spécifié'}
+
+=== SEO ET MARKETING ===
+Objectifs SEO: ${formData.objectifsSEO || 'Non spécifié'}
+Mots-clés principaux: ${formData.motsClesPrincipaux || 'Non spécifié'}
+Analyse concurrentielle: ${formData.analyseConcurrentielle || 'Non spécifié'}
+
+=== MAINTENANCE ===
+Type de maintenance: ${formData.typeMaintenance || 'Non spécifié'}
+Fonctionnalités à intégrer: ${Array.isArray(formData.fonctionnalitesIntegrer) ? formData.fonctionnalitesIntegrer.join(', ') : formData.fonctionnalitesIntegrer || 'Non spécifié'}
+
+Veuillez trouver le PDF détaillé en pièce jointe.
+
+Cordialement,
+${userName}
+
+---
+Cet email a été généré automatiquement depuis la plateforme Digital Mind+
+Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
+Contact: 76 663 82 20 | communication@dmplus-group.com`;
+
+      // Ouvrir le client email par défaut avec les adresses de l'entreprise
+      window.location.href = `mailto:communication@dmplus-group.com,dmplusgroup@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      setEmailStatus('success');
+      setEmailMessage('Client email ouvert avec toutes les informations. Veuillez ajouter le PDF en pièce jointe et envoyer.');
     } catch (error) {
       setEmailStatus('error');
-      setEmailMessage('Erreur de connexion au serveur email');
+      setEmailMessage('Erreur lors de l\'ouverture du client email');
     } finally {
       setIsSendingEmail(false);
     }
