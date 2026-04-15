@@ -1,7 +1,7 @@
-import { FormData } from '../types';
+import { FormData as BriefFormData } from '../types';
 
 export interface EmailData {
-  formData: FormData;
+  formData: BriefFormData;
   userName: string;
   userEmail: string;
 }
@@ -98,7 +98,7 @@ Veuillez consulter la plateforme pour les détails complets.`;
 };
 
 // Fonction pour envoyer la confirmation au client (mailto)
-export const sendConfirmationEmailToClientVercel = async (formData: FormData, userName: string): Promise<{ success: boolean; message: string }> => {
+export const sendConfirmationEmailToClientVercel = async (formData: BriefFormData, userName: string): Promise<{ success: boolean; message: string }> => {
   try {
     const clientSubject = 'Confirmation de réception de votre brief - Digital Mind+';
     const clientEmailBody = `Cher ${userName},

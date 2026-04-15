@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FormData } from '../types';
+import { FormData as BriefFormData } from '../types';
 
-export const generateBriefPDF = (formData: FormData) => {
+export const generateBriefPDF = (formData: BriefFormData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();

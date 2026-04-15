@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-react';
-import { FormData } from '../types';
+import { FormData as BriefFormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
 import { sendEmailViaVercelAPI, sendConfirmationEmailToClientVercel } from '../utils/vercelEmailService';
 
 interface ProjectInitializedProps {
-  formData: FormData;
+  formData: BriefFormData;
   onModify: () => void;
   onNewProject: () => void;
   userName: string;
@@ -117,7 +117,7 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
     return () => clearTimeout(timer);
   }, [formData, userName]);
 
-  const sendConfirmationEmailToClient = async (formData: FormData, userName: string) => {
+  const sendConfirmationEmailToClient = async (formData: BriefFormData, userName: string) => {
   try {
     // Email de confirmation pour le client
     const clientSubject = 'Confirmation de réception de votre brief - Digital Mind+';
