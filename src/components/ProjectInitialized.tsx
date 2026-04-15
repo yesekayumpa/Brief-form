@@ -17,71 +17,39 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [emailMessage, setEmailMessage] = useState('');
-
-  // Envoyer l'email automatiquement au chargement du composant
-  useEffect(() => {
-    const sendEmailAutomatically = async () => {
-      // Generate and download PDF
-      try {
-        generateBriefPDF(formData);
-      } catch (err) {
-        console.error("Erreur lors de la génération du PDF:", err);
-      }
-
-      // Send email
-      setIsSendingEmail(true);
-      setEmailStatus('idle');
-      setEmailMessage('');
-
-      try {
-        const result = await sendBriefEmail({
-          formData,
-          userName,
-          userEmail: formData.email || 'non spécifié'
-        });
-
-        if (result.success) {
-          setEmailStatus('success');
-          setEmailMessage('Document PDF envoyé automatiquement à communication@dmplus-group.com et dmplusgroup@gmail.com !');
-        } else {
-          setEmailStatus('error');
-          setEmailMessage(result.message || 'Erreur lors de l\'envoi de l\'email');
-        }
-      } catch (error) {
-        // Fallback: Ouvrir le client email par défaut avec les informations pré-remplies
-        setEmailStatus('success');
-        setEmailMessage('Client email ouvert avec les informations pré-remplies. Veuillez envoyer manuellement à communication@dmplus-group.com et dmplusgroup@gmail.com');
-        
-        // Créer le contenu de l'email
-        const emailSubject = `Nouveau Brief Stratégique - ${formData.nomProjet || 'Projet sans nom'}`;
-        const emailBody = `Bonjour Digital Mind+,
-
-Voici les informations du nouveau brief stratégique :
-
-Client: ${userName}
-Email: ${formData.email || 'non spécifié'}
-Projet: ${formData.nomProjet || 'Projet sans nom'}
-
-Veuillez trouver le PDF détaillé en pièce jointe.
-
-Cordialement,
-${userName}`;
-
-        // Ouvrir le client email par défaut
-        window.location.href = `mailto:communication@dmplus-group.com,dmplusgroup@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      } finally {
-        setIsSendingEmail(false);
-      }
-    };
-
-    // Délai de 2 secondes pour s'assurer que la page est complètement chargée
-    const timer = setTimeout(sendEmailAutomatically, 2000);
-    return () => clearTimeout(timer);
-  }, [formData, userName]);
-
   const handleSend = async () => {
-    // Fonction de secours au cas où l'envoi automatique échoue
-    await sendEmailAutomatically();
+    // Generate and download PDF
+    try {
+      generateBriefPDF(formData);
+    } catch (err) {
+      console.error("Erreur lors de la génération du PDF:", err);
+    }
+
+    // Send email
+    setIsSendingEmail(true);
+    setEmailStatus('idle');
+    setEmailMessage('');
+
+    try {
+      const result = await sendBriefEmail({
+        formData,
+        userName,
+        userEmail: formData.email || 'non spécifié'
+      });
+
+      if (result.success) {
+        setEmailStatus('success');
+        setEmailMessage('Email envoyé avec succès à yesekayumpab@gmail.com !');
+      } else {
+        setEmailStatus('error');
+        setEmailMessage(result.message || 'Erreur lors de l\'envoi de l\'email');
+      }
+    } catch (error) {
+      setEmailStatus('error');
+      setEmailMessage('Erreur de connexion au serveur email');
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   return (
@@ -141,6 +109,27 @@ ${userName}`;
                 >
                   <SquarePen className="w-5 h-5" />
                   Modifier
+                </button>
+                <button 
+                  onClick={handleSend}
+                  disabled={isSendingEmail}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  {isSendingEmail ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Envoyer
+                    </>
+                  )}
                 </button>
                 <button 
                   onClick={onNewProject}

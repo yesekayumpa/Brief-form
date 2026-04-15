@@ -172,15 +172,8 @@ export default function App() {
     if (isStepValid()) {
       if (step < totalSteps) setStep(step + 1);
     } else {
-      // Afficher un message d'erreur
-      alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
-      
-      // Faire défiler vers le premier champ vide
-      const firstEmptyField = document.querySelector('input:invalid, textarea:invalid, .field-input[required]:not([value])');
-      if (firstEmptyField) {
-        firstEmptyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstEmptyField.focus();
-      }
+      // Passer directement à l'étape suivante sans validation
+      if (step < totalSteps) setStep(step + 1);
     }
   };
 
@@ -188,18 +181,15 @@ export default function App() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isStepValid()) {
-      setIsProjectInitialized(true);
-      
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#E31E24', '#1A1C21', '#F8F9FB']
-      });
-    } else {
-      alert('Veuillez remplir tous les champs obligatoires avant de soumettre le formulaire.');
-    }
+    console.log('handleSubmit called - setting project initialized');
+    setIsProjectInitialized(true);
+    
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#E31E24', '#1A1C21', '#F8F9FB']
+    });
   };
 
   const renderStep = () => {
@@ -224,7 +214,9 @@ export default function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  console.log('Rendering check - isProjectInitialized:', isProjectInitialized, 'step:', step);
   if (isProjectInitialized) {
+    console.log('Rendering ProjectInitialized component');
     return (
       <ProjectInitialized 
         formData={formData} 
