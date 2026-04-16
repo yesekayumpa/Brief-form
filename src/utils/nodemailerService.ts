@@ -26,7 +26,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setFont('helvetica', 'bold');
     doc.text('DM+ COM. & MARKETING', 15, 10);
-    
+
     doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.setFont('helvetica', 'normal');
     doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
@@ -61,10 +61,10 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   doc.setFontSize(32);
   doc.setFont('helvetica', 'bold');
   doc.text('DM+', 40, 55);
-  
+
   doc.setTextColor(255, 255, 255);
   doc.text('COM. & MARKETING', 75, 55);
-  
+
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
   doc.text('Digital Mind+ Group', pageWidth / 2, 65, { align: 'center' });
@@ -76,7 +76,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
   doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 85, { align: 'center' });
-  
+
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(18);
   doc.text('Site Internet', pageWidth / 2, 95, { align: 'center' });
@@ -84,7 +84,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   // Info Boxes
   const boxWidth = (pageWidth - 40) / 3;
   const boxY = 115;
-  
+
   const drawBox = (x: number, title: string, value: string) => {
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.rect(x, boxY, boxWidth, 15);
@@ -106,12 +106,12 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setLineWidth(1);
   doc.line(15, 145, 15, 170);
-  
+
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text("Mode d'emploi", 20, 152);
-  
+
   doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
@@ -350,7 +350,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
   const concurrentsBody = formData.concurrents.filter(c => c.nom).map((c, i) => [
     `Concurrent ${i + 1}`,
-    `Nom: ${c.nom}\nCe qu'ils font bien: ${c.bien}\nCe que vous faites mieux: ${c.mieux}` 
+    `Nom: ${c.nom}\nCe qu'ils font bien: ${c.bien}\nCe que vous faites mieux: ${c.mieux}`
   ]);
 
   autoTable(doc, {
@@ -378,7 +378,7 @@ const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
   try {
     // Utiliser directement la copie locale avec returnAsBlob=true
     const pdfBlob = generateBriefPDF(formData, true);
-    
+
     return pdfBlob;
   } catch (error) {
     throw new Error(`Erreur lors de la génération du PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
@@ -391,13 +391,9 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
     // Générer le PDF en Blob
     const pdfBlob = await generatePDFBlob(emailData.formData);
 
-    // Convertir le Blob en ArrayBuffer pour l'upload
-    const pdfArrayBuffer = await pdfBlob.arrayBuffer();
-    const pdfBuffer = Buffer.from(pdfArrayBuffer);
-
-    // Créer FormData pour l'upload
+    // Créer FormData pour l'upload (utiliser directement le Blob)
     const formData = new FormData();
-    formData.append('convention_pdf', new Blob([pdfBuffer], { type: 'application/pdf' }), `Convention_${emailData.formData.nomEntreprise}_DM_Invest.pdf`);
+    formData.append('convention_pdf', pdfBlob, `Convention_${emailData.formData.nomEntreprise}_DM_Invest.pdf`);
     formData.append('userName', emailData.userName);
     formData.append('userEmail', emailData.userEmail);
     formData.append('nomEntreprise', emailData.formData.nomEntreprise);
