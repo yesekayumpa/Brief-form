@@ -27,14 +27,13 @@ module.exports = async function handler(req, res) {
     await runMiddleware(req, res, upload.single('convention_pdf'));
 
     // Étape 1 : Réception des données
-    const { clientEmail, userName, formData } = req.body;
+    const { userName, userEmail, nomEntreprise } = req.body;
     const pdfFile = req.file; // PDF uploadé
 
-    console.log('Données reçues:', { clientEmail, userName, formData: JSON.parse(formData) });
+    console.log('Données reçues:', { userName, userEmail, nomEntreprise });
     console.log('Fichier PDF reçu:', pdfFile ? 'Oui' : 'Non');
 
-    // Parse formData si c'est une chaîne
-    const formDataParsed = typeof formData === 'string' ? JSON.parse(formData) : formData;
+    // Pas besoin de parser formData - on reçoit directement les champs
 
     // Étape 2 : Configuration du transporteur Nodemailer
     const transporter = nodemailer.createTransport({
@@ -52,7 +51,7 @@ module.exports = async function handler(req, res) {
     // Email pour le client (confirmation)
     const mailClientOptions = {
       from: 'communication@dmplus-group.com',
-      to: clientEmail, // Email du client
+      to: userEmail, // Email du client
       subject: 'Confirmation de réception de votre brief - Digital Mind+',
       html: `
         <!DOCTYPE html>
@@ -75,7 +74,7 @@ module.exports = async function handler(req, res) {
             </div>
             <div class="content">
               <p>Cher ${userName},</p>
-              <p>Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${formDataParsed.nomProjet || 'Projet sans nom'}".</p>
+              <p>Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${nomEntreprise || 'Projet sans nom'}".</p>
               <p>Votre demande est maintenant entre les mains de notre équipe qui va l'étudier avec attention.</p>
               <h3>Prochaines étapes :</h3>
               <ol>
@@ -103,7 +102,7 @@ module.exports = async function handler(req, res) {
         
         Cher ${userName},
         
-        Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${formDataParsed.nomProjet || 'Projet sans nom'}".
+        Nous vous confirmons la bonne réception de votre brief stratégique pour le projet "${nomEntreprise || 'Projet sans nom'}".
         
         Votre demande est maintenant entre les mains de notre équipe qui va l'étudier avec attention.
         
@@ -128,7 +127,7 @@ module.exports = async function handler(req, res) {
     const mailCompanyOptions = {
       from: 'communication@dmplus-group.com',
       to: 'communication@dmplus-group.com', // Email entreprise
-      subject: `NOUVEAU BRIEF STRATÉGIQUE REÇU : ${formDataParsed.nomProjet || 'Projet sans nom'} (${clientEmail})`,
+      subject: `NOUVEAU BRIEF STRATÉGIQUE REÇU : ${nomEntreprise || 'Projet sans nom'} (${userEmail})`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -161,16 +160,13 @@ module.exports = async function handler(req, res) {
               <div class="section">
                 <h2>INFORMATIONS CLIENT</h2>
                 <div class="field"><strong>Nom:</strong> ${userName}</div>
-                <div class="field"><strong>Email:</strong> ${clientEmail}</div>
-                <div class="field"><strong>Téléphone:</strong> ${formDataParsed.telephone || 'Non spécifié'}</div>
+                <div class="field"><strong>Email:</strong> ${userEmail}</div>
+                <div class="field"><strong>Entreprise:</strong> ${nomEntreprise || 'Non spécifié'}</div>
               </div>
               <div class="section">
                 <h2>INFORMATIONS PROJET</h2>
-                <div class="field"><strong>Nom du projet:</strong> ${formDataParsed.nomProjet || 'Non spécifié'}</div>
-                <div class="field"><strong>Objectif principal:</strong> ${formDataParsed.objectifPrincipal || 'Non spécifié'}</div>
-                <div class="field"><strong>Public cible:</strong> ${formDataParsed.publicCible || 'Non spécifié'}</div>
-                <div class="field"><strong>Délai de livraison:</strong> ${formDataParsed.delaiLivraison || 'Non spécifié'}</div>
-                <div class="field"><strong>Budget alloué:</strong> ${formDataParsed.budgetAlloue || 'Non spécifié'}</div>
+                <div class="field"><strong>Nom de l'entreprise:</strong> ${nomEntreprise || 'Non spécifié'}</div>
+                <div class="field"><strong>Date de soumission:</strong> ${new Date().toLocaleDateString('fr-FR')}</div>
               </div>
               <div class="section">
                 <h2>DOCUMENTS</h2>
@@ -187,7 +183,7 @@ module.exports = async function handler(req, res) {
         </html>
       `,
       attachments: pdfFile ? [{
-        filename: `Convention_${formDataParsed.nomEntreprise || 'Client'}_DM_Invest.pdf`,
+        filename: `Convention_${nomEntreprise || 'Client'}_DM_Invest.pdf`,
         content: pdfFile.buffer,
         contentType: 'application/pdf'
       }] : []
@@ -197,7 +193,7 @@ module.exports = async function handler(req, res) {
     try {
       // 1. Email au client
       await transporter.sendMail(mailClientOptions);
-      console.log('Email de confirmation envoyé au client:', clientEmail);
+      console.log('Email de confirmation envoyé au client:', userEmail);
       
       // 2. Email à l'entreprise avec PDF
       await transporter.sendMail(mailCompanyOptions);
@@ -207,7 +203,7 @@ module.exports = async function handler(req, res) {
         success: true, 
         message: 'Emails envoyés avec succès !',
         details: {
-          clientEmail: clientEmail,
+          clientEmail: userEmail,
           companyEmail: 'communication@dmplus-group.com',
           pdfAttached: !!pdfFile
         }
