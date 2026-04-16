@@ -22,13 +22,6 @@ export default function ProjectInitialized({ formData, onModify, onNewProject, u
   // Envoyer automatiquement les emails au chargement du composant
   useEffect(() => {
     const sendEmailsAutomatically = async () => {
-      // Generate and download PDF
-      try {
-        generateBriefPDF(formData);
-      } catch (err) {
-        console.error("Erreur lors de la génération du PDF:", err);
-      }
-
       setIsSendingEmail(true);
       setEmailStatus('idle');
       setEmailMessage('');
@@ -116,13 +109,6 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
 const handleSend = async () => {
     // Fonction manuelle de secours - même logique que l'automatique
     const sendEmailsManually = async () => {
-      // Generate and download PDF
-      try {
-        generateBriefPDF(formData);
-      } catch (err) {
-        console.error("Erreur lors de la génération du PDF:", err);
-      }
-
       setIsSendingEmail(true);
       setEmailStatus('idle');
       setEmailMessage('');
