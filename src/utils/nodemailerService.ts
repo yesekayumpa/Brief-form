@@ -1,52 +1,104 @@
-import { FormData } from '../types';
+import { FormData as BriefFormData } from '../types';
 
 export interface EmailData {
-  formData: FormData;
+  formData: BriefFormData;
   userName: string;
   userEmail: string;
 }
 
-// Service utilisant un proxy Nodemailer (via EmailJS ou service similaire)
+// Service complet avec Nodemailer backend - envoie 2 emails avec PDF
 export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
   try {
-    // Utiliser EmailJS comme alternative à Nodemailer côté client
-    // Configuration EmailJS (remplacez par vos vraies clés)
-    const serviceID = 'service_your_service_id';
-    const templateID = 'template_your_template_id';
-    const publicKey = 'your_public_key';
-
-    // Préparer les données pour EmailJS
-    const templateParams = {
-      to_email: 'dmplusgroup@gmail.com',
-      from_name: emailData.userName,
-      from_email: emailData.userEmail,
-      project_name: emailData.formData.nomProjet || 'Projet sans nom',
-      project_objective: emailData.formData.objectifPrincipal || 'Non spécifié',
-      target_audience: emailData.formData.publicCible || 'Non spécifié',
-      deadline: emailData.formData.delaiLivraison || 'Non spécifié',
-      budget: emailData.formData.budgetAlloue || 'Non spécifié',
-      website_pages: Array.isArray(emailData.formData.pagesSouhaitees) ? emailData.formData.pagesSouhaitees.join(', ') : emailData.formData.pagesSouhaitees || 'Non spécifié',
-      features: Array.isArray(emailData.formData.fonctionnalitesSite) ? emailData.formData.fonctionnalitesSite.join(', ') : emailData.formData.fonctionnalitesSite || 'Non spécifié',
-      contact_phone: emailData.formData.telephone || 'Non spécifié',
-      message: `Brief stratégique complet reçu le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`
-    };
-
-    // Simuler l'envoi (remplacez par l'appel EmailJS réel)
-    console.log('Envoi d\'email avec Nodemailer/EmailJS:', templateParams);
+    console.log('Envoi d\'emails via API Nodemailer complet...');
     
-    // Pour l'instant, retourner succès en attendant la configuration EmailJS
+    // 1. Générer le PDF
+    const pdfBlob = await generatePDFBlob(emailData.formData);
+    
+    // 2. Créer FormData pour l'upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('clientEmail', emailData.userEmail);
+    formDataToSend.append('userName', emailData.userName);
+    formDataToSend.append('formData', JSON.stringify(emailData.formData));
+    formDataToSend.append('pdfFile', pdfBlob, `Brief_${emailData.formData.nomProjet || 'Projet'}_${emailData.userName}.pdf`);
+
+    // 3. Appeler l'API backend
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      body: formDataToSend,
+      // Ne pas définir Content-Type, il sera défini automatiquement par FormData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('Réponse API Nodemailer:', result);
+
     return {
-      success: true,
-      message: 'Email envoyé avec succès via Nodemailer!'
+      success: result.success,
+      message: result.message
     };
 
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email Nodemailer:', error);
+    console.error('Erreur lors de l\'envoi via Nodemailer API:', error);
+    
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Erreur inconnue'
     };
   }
+};
+
+// Fonction pour générer le PDF en Blob
+const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Importer jsPDF dynamiquement
+      import('jspdf').then(({ default: jsPDF }) => {
+        const doc = new jsPDF();
+        
+        // Ajouter le contenu du brief au PDF
+        doc.setFontSize(20);
+        doc.text('Brief Stratégique - Digital Mind+', 20, 20);
+        
+        doc.setFontSize(14);
+        doc.text(`Nom du projet: ${formData.nomProjet || 'Non spécifié'}`, 20, 40);
+        doc.text(`Client: ${formData.telephone || 'Non spécifié'}`, 20, 50);
+        doc.text(`Objectif: ${formData.objectifPrincipal || 'Non spécifié'}`, 20, 60);
+        doc.text(`Budget: ${formData.budgetAlloue || 'Non spécifié'}`, 20, 70);
+        doc.text(`Délai: ${formData.delaiLivraison || 'Non spécifié'}`, 20, 80);
+        
+        // Ajouter plus de sections si nécessaire
+        doc.setFontSize(12);
+        let yPosition = 100;
+        
+        if (formData.publicCible) {
+          doc.text(`Public cible: ${formData.publicCible}`, 20, yPosition);
+          yPosition += 10;
+        }
+        
+        if (formData.descriptionActivite) {
+          doc.text(`Description: ${formData.descriptionActivite}`, 20, yPosition);
+          yPosition += 10;
+        }
+        
+        // Footer
+        doc.setFontSize(10);
+        doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 20, 280);
+        doc.text('Digital Mind+ Group', 20, 290);
+        
+        // Convertir en Blob
+        const pdfBlob = doc.output('blob');
+        resolve(pdfBlob);
+        
+      }).catch(reject);
+      
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 // Alternative: Utiliser un service SMTP relay

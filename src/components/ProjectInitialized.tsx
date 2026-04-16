@@ -4,7 +4,7 @@ import { SquarePen, FileText, Mail, CheckCircle, AlertCircle } from 'lucide-reac
 import { FormData as BriefFormData } from '../types';
 import BorderGlow from './BorderGlow';
 import { generateBriefPDF } from '../utils/pdfGenerator';
-import { sendEmailViaVercelAPI } from '../utils/vercelEmailService';
+import { sendBriefEmailWithNodemailer } from '../utils/nodemailerService';
 
 interface ProjectInitializedProps {
   formData: BriefFormData;
@@ -84,19 +84,19 @@ Système automatique Digital Mind+
 Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
-        // Envoyer email à l'entreprise via API Vercel
-        const companyResult = await sendEmailViaVercelAPI({
+        // Envoyer emails complets via Nodemailer API (client + entreprise avec PDF)
+        const result = await sendBriefEmailWithNodemailer({
           formData,
           userName,
           userEmail: formData.email || 'non spécifié'
         });
 
-        if (companyResult.success) {
+        if (result.success) {
           setEmailStatus('success');
-          setEmailMessage('Email envoyé automatiquement à dmplusgroup@gmail.com !');
+          setEmailMessage('Emails envoyés automatiquement ! Confirmation au client et brief avec PDF à l\'entreprise.');
         } else {
           setEmailStatus('error');
-          setEmailMessage('Erreur lors de l\'envoi: ' + companyResult.message);
+          setEmailMessage('Erreur lors de l\'envoi: ' + result.message);
         }
       } catch (error) {
         setEmailStatus('error');
@@ -178,19 +178,19 @@ Système automatique Digital Mind+
 Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 Contact: 76 663 82 20 | communication@dmplus-group.com`;
 
-        // Envoyer email à l'entreprise via API Vercel
-        const companyResult = await sendEmailViaVercelAPI({
+        // Envoyer emails complets via Nodemailer API (client + entreprise avec PDF)
+        const result = await sendBriefEmailWithNodemailer({
           formData,
           userName,
           userEmail: formData.email || 'non spécifié'
         });
 
-        if (companyResult.success) {
+        if (result.success) {
           setEmailStatus('success');
-          setEmailMessage('Email envoyé automatiquement à dmplusgroup@gmail.com !');
+          setEmailMessage('Emails envoyés automatiquement ! Confirmation au client et brief avec PDF à l\'entreprise.');
         } else {
           setEmailStatus('error');
-          setEmailMessage('Erreur lors de l\'envoi: ' + companyResult.message);
+          setEmailMessage('Erreur lors de l\'envoi: ' + result.message);
         }
       } catch (error) {
         setEmailStatus('error');
