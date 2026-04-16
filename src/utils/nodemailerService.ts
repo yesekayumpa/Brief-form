@@ -51,50 +51,220 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
   }
 };
 
-// Fonction pour générer le PDF en Blob
+// Fonction pour générer le PDF en Blob (IDENTIQUE au téléchargement client)
 const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     try {
-      // Importer jsPDF dynamiquement
-      import('jspdf').then(({ default: jsPDF }) => {
+      // Importer les modules dynamiquement
+      Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable')
+      ]).then(([{ default: jsPDF }, { default: autoTable }]) => {
+        // Utiliser exactement la même fonction que le téléchargement client
         const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Colors (identiques au pdfGenerator.ts)
+        const brandRed = [227, 30, 36]; // #E31E24
+        const brandDark = [26, 28, 33]; // #1A1C21
+        const brandGray = [156, 163, 175]; // #9CA3AF
+
+        // Helper pour Header/Footer (identique)
+        const addHeaderFooter = (currentPage: number, totalPages: number) => {
+          doc.setFontSize(8);
+          doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+          doc.setFont('helvetica', 'bold');
+          doc.text('DM+ COM. & MARKETING', 15, 10);
+          
+          doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
+          doc.setFont('helvetica', 'normal');
+          doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
+
+          doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+          doc.setLineWidth(0.5);
+          doc.line(15, 12, pageWidth - 15, 12);
+
+          // Footer
+          doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
+          doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+          doc.setFontSize(7);
+          doc.text('communication@dmplus-group.com |  +221 76 663 82 20|  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+        };
+
+        const addSectionHeader = (num: string, title: string, y: number) => {
+          doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+          doc.rect(15, y, pageWidth - 30, 10, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${num} ${title}`, 20, y + 6.5);
+        };
+
+        // --- PAGE 1: COVER (identique) ---
+        doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
+        doc.rect(15, 30, pageWidth - 30, 60, 'F');
+
+        // Logo et titre (identique)
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BRIEF STRATÉGIQUE', pageWidth / 2, 55, { align: 'center' });
         
-        // Ajouter le contenu du brief au PDF
-        doc.setFontSize(20);
-        doc.text('Brief Stratégique - Digital Mind+', 20, 20);
-        
-        doc.setFontSize(14);
-        doc.text(`Nom du projet: ${formData.nomProjet || 'Non spécifié'}`, 20, 40);
-        doc.text(`Client: ${formData.telephone || 'Non spécifié'}`, 20, 50);
-        doc.text(`Objectif: ${formData.objectifPrincipal || 'Non spécifié'}`, 20, 60);
-        doc.text(`Budget: ${formData.budgetAlloue || 'Non spécifié'}`, 20, 70);
-        doc.text(`Délai: ${formData.delaiLivraison || 'Non spécifié'}`, 20, 80);
-        
-        // Ajouter plus de sections si nécessaire
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Développement Web & Digital', pageWidth / 2, 65, { align: 'center' });
+
+        // Informations projet (identique)
+        doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
         doc.setFontSize(12);
-        let yPosition = 100;
+        doc.text(`Nom du projet: ${formData.nomProjet || 'Projet sans nom'}`, 20, 110);
+        doc.text(`Client: ${formData.nomEntreprise || 'Non spécifié'}`, 20, 120);
+        doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 130);
+
+        addHeaderFooter(1, 1);
+
+        // --- PAGE 2: INFORMATIONS CLIENT (identique) ---
+        doc.addPage();
+        addHeaderFooter(2, 2);
         
-        if (formData.publicCible) {
-          doc.text(`Public cible: ${formData.publicCible}`, 20, yPosition);
-          yPosition += 10;
-        }
+        addSectionHeader('01', 'INFORMATIONS CLIENT', 30);
         
-        if (formData.descriptionActivite) {
-          doc.text(`Description: ${formData.descriptionActivite}`, 20, yPosition);
-          yPosition += 10;
-        }
-        
-        // Footer
+        doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
         doc.setFontSize(10);
-        doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 20, 280);
-        doc.text('Digital Mind+ Group', 20, 290);
+        doc.setFont('helvetica', 'normal');
         
+        let yPos = 50;
+        const addField = (label: string, value: string) => {
+          doc.setFont('helvetica', 'bold');
+          doc.text(label, 20, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(value || 'Non spécifié', 60, yPos);
+          yPos += 8;
+        };
+
+        addField('Entreprise:', formData.nomEntreprise);
+        addField('Secteur:', formData.secteurActivite);
+        addField('Siège social:', formData.siegeSocial);
+        addField('Site actuel:', formData.siteActuel);
+        addField('URL souhaitée:', formData.urlSouhaitee);
+        addField('Fonction:', formData.fonctionTitre);
+        addField('Email:', formData.emailContact);
+        addField('Téléphone:', formData.telephone);
+        addField('Taille:', formData.tailleEntreprise);
+        addField('Phase:', formData.phaseEntreprise);
+
+        // --- PAGE 3: DESCRIPTION ACTIVITÉ ---
+        if (formData.descriptionActivite || formData.differenceConcurrents) {
+          doc.addPage();
+          addHeaderFooter(3, 3);
+          
+          addSectionHeader('02', 'DESCRIPTION ACTIVITÉ', 30);
+          
+          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          
+          let yPos = 50;
+          
+          if (formData.descriptionActivite) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Description de l\'activité:', 20, yPos);
+            yPos += 8;
+            doc.setFont('helvetica', 'normal');
+            const lines = doc.splitTextToSize(formData.descriptionActivite, pageWidth - 40);
+            lines.forEach((line: string) => {
+              doc.text(line, 20, yPos);
+              yPos += 6;
+            });
+            yPos += 5;
+          }
+          
+          if (formData.differenceConcurrents) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Différence avec les concurrents:', 20, yPos);
+            yPos += 8;
+            doc.setFont('helvetica', 'normal');
+            const lines = doc.splitTextToSize(formData.differenceConcurrents, pageWidth - 40);
+            lines.forEach((line: string) => {
+              doc.text(line, 20, yPos);
+              yPos += 6;
+            });
+          }
+        }
+
+        // --- PAGE 4: OBJECTIFS ---
+        if (formData.objectifPrincipal || formData.ciblePrincipale) {
+          doc.addPage();
+          addHeaderFooter(4, 4);
+          
+          addSectionHeader('03', 'OBJECTIFS DU PROJET', 30);
+          
+          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          
+          let yPos = 50;
+          
+          if (formData.objectifPrincipal && formData.objectifPrincipal.length > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Objectifs principaux:', 20, yPos);
+            yPos += 8;
+            doc.setFont('helvetica', 'normal');
+            formData.objectifPrincipal.forEach((objectif: string) => {
+              const lines = doc.splitTextToSize(`• ${objectif}`, pageWidth - 40);
+              lines.forEach((line: string) => {
+                doc.text(line, 20, yPos);
+                yPos += 6;
+              });
+            });
+            yPos += 5;
+          }
+          
+          if (formData.ciblePrincipale) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Cible principale:', 20, yPos);
+            yPos += 8;
+            doc.setFont('helvetica', 'normal');
+            const lines = doc.splitTextToSize(formData.ciblePrincipale, pageWidth - 40);
+            lines.forEach((line: string) => {
+              doc.text(line, 20, yPos);
+              yPos += 6;
+            });
+          }
+        }
+
+        // --- PAGE 5: BUDGET ET DÉLAIS ---
+        if (formData.budgetGlobal || formData.delaiLivraison) {
+          doc.addPage();
+          addHeaderFooter(5, 5);
+          
+          addSectionHeader('04', 'BUDGET ET DÉLAIS', 30);
+          
+          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          
+          let yPos = 50;
+          const addField = (label: string, value: string) => {
+            doc.setFont('helvetica', 'bold');
+            doc.text(label, 20, yPos);
+            doc.setFont('helvetica', 'normal');
+            doc.text(value || 'Non spécifié', 60, yPos);
+            yPos += 8;
+          };
+
+          addField('Budget global:', formData.budgetGlobal);
+          addField('Modalités de paiement:', formData.modalitesPaiement);
+          addField('Délai de livraison:', formData.delaiLivraison);
+          addField('Date de mise en ligne:', formData.dateMiseEnLigne);
+          addField('Contraintes particulières:', formData.contraintesParticulieres);
+        }
+
         // Convertir en Blob
-        const pdfBlob = doc.output('blob');
+        const pdfBlob = new Blob([doc.output('blob')], { type: 'application/pdf' });
         resolve(pdfBlob);
-        
       }).catch(reject);
-      
     } catch (error) {
       reject(error);
     }
