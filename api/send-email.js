@@ -127,7 +127,7 @@ module.exports = async function handler(req, res) {
     // Email pour l'entreprise (PDF + données)
     const mailCompanyOptions = {
       from: 'communication@dmplus-group.com',
-      to: 'dmplusgroup@gmail.com', // Email entreprise
+      to: 'communication@dmplus-group.com', // Email entreprise
       subject: `NOUVEAU BRIEF STRATÉGIQUE REÇU : ${formDataParsed.nomProjet || 'Projet sans nom'} (${clientEmail})`,
       html: `
         <!DOCTYPE html>
@@ -208,7 +208,7 @@ module.exports = async function handler(req, res) {
         message: 'Emails envoyés avec succès !',
         details: {
           clientEmail: clientEmail,
-          companyEmail: 'dmplusgroup@gmail.com',
+          companyEmail: 'communication@dmplus-group.com',
           pdfAttached: !!pdfFile
         }
       });

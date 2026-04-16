@@ -107,7 +107,7 @@ export const sendEmailWithSMTPRelay = async (emailData: EmailData): Promise<{ su
     // Configuration du relay SMTP (via Formspree ou service similaire)
     const formData = new FormData();
     
-    formData.append('to', 'dmplusgroup@gmail.com');
+    formData.append('to', 'communication@dmplus-group.com');
     formData.append('from', emailData.userEmail);
     formData.append('subject', `Nouveau Brief Stratégique - ${emailData.formData.nomProjet || 'Projet sans nom'} - ${emailData.userName}`);
     

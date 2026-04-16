@@ -23,7 +23,7 @@ export const sendEmailNodemailerStyle = async (emailData: EmailData): Promise<{ 
     // Options de l'email exactement comme votre backend
     const mailOptions = {
       from: 'communication@dmplus-group.com', // Doit être l'adresse authentifiée sur LWS
-      to: 'dmplusgroup@gmail.com', // Destinataire principal
+      to: 'communication@dmplus-group.com', // Destinataire principal
       replyTo: emailData.userEmail, // Le client peut répondre directement
       subject: `Nouveau Brief Stratégique - ${emailData.formData.nomProjet || 'Projet sans nom'} - ${emailData.userName}`,
       html: generateNodemailerHTML(emailData.formData, emailData.userName, emailData.userEmail),
@@ -41,9 +41,9 @@ export const sendEmailNodemailerStyle = async (emailData: EmailData): Promise<{ 
       messageId: `nodemailer_${Date.now()}@dmplus-group.com`,
       envelope: {
         from: 'communication@dmplus-group.com',
-        to: ['dmplusgroup@gmail.com']
+        to: ['communication@dmplus-group.com']
       },
-      accepted: ['dmplusgroup@gmail.com'],
+      accepted: ['communication@dmplus-group.com'],
       rejected: [],
       pending: []
     };

@@ -81,7 +81,7 @@ Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeStri
 
 Veuillez consulter la plateforme pour les détails complets.`;
 
-    const mailtoLink = `mailto:dmplusgroup@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:communication@dmplus-group.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailtoLink, '_blank');
 
     return {
