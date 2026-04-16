@@ -23,8 +23,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Exécuter multer pour gérer les fichiers
-    await runMiddleware(req, res, upload.single('pdfFile'));
+    // Traiter le fichier uploadé (même nom que votre exemple)
+    await runMiddleware(req, res, upload.single('convention_pdf'));
 
     // Étape 1 : Réception des données
     const { clientEmail, userName, formData } = req.body;
@@ -187,7 +187,7 @@ module.exports = async function handler(req, res) {
         </html>
       `,
       attachments: pdfFile ? [{
-        filename: `Brief_${formDataParsed.nomProjet || 'Projet'}_${userName}.pdf`,
+        filename: `Convention_${formDataParsed.nomEntreprise || 'Client'}_DM_Invest.pdf`,
         content: pdfFile.buffer,
         contentType: 'application/pdf'
       }] : []

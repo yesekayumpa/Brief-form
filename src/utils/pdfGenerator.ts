@@ -18,7 +18,7 @@ export const generateBriefPDF = (formData: BriefFormData) => {
     doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setFont('helvetica', 'bold');
     doc.text('DM+ COM. & MARKETING', 15, 10);
-    
+
     doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.setFont('helvetica', 'normal');
     doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
@@ -44,18 +44,19 @@ export const generateBriefPDF = (formData: BriefFormData) => {
   };
 
   // --- PAGE 1: COVER ---
-  // Black Banner
+  // Black Banner avec logo DM+ (exactement comme votre exemple)
   doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
   doc.rect(15, 30, pageWidth - 30, 60, 'F');
 
+  // Logo DM+ exactement comme votre exemple
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(32);
   doc.setFont('helvetica', 'bold');
   doc.text('DM+', 40, 55);
-  
+
   doc.setTextColor(255, 255, 255);
   doc.text('COM. & MARKETING', 75, 55);
-  
+
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
   doc.text('Digital Mind+ Group', pageWidth / 2, 65, { align: 'center' });
@@ -67,7 +68,7 @@ export const generateBriefPDF = (formData: BriefFormData) => {
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
   doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 85, { align: 'center' });
-  
+
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(18);
   doc.text('Site Internet', pageWidth / 2, 95, { align: 'center' });
@@ -75,7 +76,7 @@ export const generateBriefPDF = (formData: BriefFormData) => {
   // Info Boxes
   const boxWidth = (pageWidth - 40) / 3;
   const boxY = 115;
-  
+
   const drawBox = (x: number, title: string, value: string) => {
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.rect(x, boxY, boxWidth, 15);
@@ -97,12 +98,12 @@ export const generateBriefPDF = (formData: BriefFormData) => {
   doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setLineWidth(1);
   doc.line(15, 145, 15, 170);
-  
+
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text("Mode d'emploi", 20, 152);
-  
+
   doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);

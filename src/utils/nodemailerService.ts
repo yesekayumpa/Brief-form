@@ -10,16 +10,16 @@ export interface EmailData {
 export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
   try {
     console.log('Envoi d\'emails via API Nodemailer complet...');
-    
+
     // 1. Générer le PDF
     const pdfBlob = await generatePDFBlob(emailData.formData);
-    
-    // 2. Créer FormData pour l'upload
+
+    // 2. Créer FormData pour l'upload (même structure que votre exemple)
     const formDataToSend = new FormData();
     formDataToSend.append('clientEmail', emailData.userEmail);
     formDataToSend.append('userName', emailData.userName);
     formDataToSend.append('formData', JSON.stringify(emailData.formData));
-    formDataToSend.append('pdfFile', pdfBlob, `Brief_${emailData.formData.nomProjet || 'Projet'}_${emailData.userName}.pdf`);
+    formDataToSend.append('convention_pdf', pdfBlob, `Convention_${emailData.formData.nomEntreprise || 'Client'}_DM_Invest.pdf`);
 
     // 3. Appeler l'API backend
     const response = await fetch('/api/send-email', {
@@ -43,7 +43,7 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
 
   } catch (error) {
     console.error('Erreur lors de l\'envoi via Nodemailer API:', error);
-    
+
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Erreur inconnue'
@@ -64,19 +64,19 @@ const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
         // Créer un document temporaire pour capturer la sortie
         const originalSave = jsPDF.prototype.save;
         let pdfOutput: string | ArrayBuffer = '';
-        
+
         // Remplacer la fonction save pour capturer la sortie
-        jsPDF.prototype.save = function(filename: string) {
+        jsPDF.prototype.save = function (filename: string) {
           pdfOutput = this.output('arraybuffer');
           return pdfOutput;
         };
-        
+
         // Utiliser la fonction existante generateBriefPDF
         generateBriefPDF(formData);
-        
+
         // Restaurer la fonction save originale
         jsPDF.prototype.save = originalSave;
-        
+
         // Créer le Blob avec la sortie capturée
         const pdfBlob = new Blob([pdfOutput], { type: 'application/pdf' });
         resolve(pdfBlob);
@@ -92,11 +92,11 @@ export const sendEmailWithSMTPRelay = async (emailData: EmailData): Promise<{ su
   try {
     // Configuration du relay SMTP (via Formspree ou service similaire)
     const formData = new FormData();
-    
+
     formData.append('to', 'communication@dmplus-group.com');
     formData.append('from', emailData.userEmail);
     formData.append('subject', `Nouveau Brief Stratégique - ${emailData.formData.nomProjet || 'Projet sans nom'} - ${emailData.userName}`);
-    
+
     const emailBody = `
       NOUVEAU BRIEF STRATÉGIQUE REÇU
       
@@ -117,7 +117,7 @@ export const sendEmailWithSMTPRelay = async (emailData: EmailData): Promise<{ su
       
       Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
     `;
-    
+
     formData.append('body', emailBody);
     formData.append('replyto', emailData.userEmail);
 
