@@ -103,7 +103,7 @@ const InputWrapper = ({
             textTransform: shouldFloat ? "uppercase" : "none",
           }}
         >
-          {label}
+          {label} <span className="text-brand-red font-bold">*</span>
         </motion.label>
         <div className="ripple-line" />
       </div>
@@ -143,7 +143,7 @@ const CheckboxGroup = ({
       <label
         className={`form-label ${redTitle ? "!text-brand-red !font-bold" : ""}`}
       >
-        {label}
+        {label} <span className="text-brand-red font-bold">*</span>
       </label>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {options.map((opt) => (
@@ -195,7 +195,7 @@ const RadioGroup = ({
     <label
       className={`form-label ${redTitle ? "!text-brand-red !font-bold" : ""}`}
     >
-      {label}
+      {label} <span className="text-brand-red font-bold">*</span>
     </label>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       {options.map((opt) => (

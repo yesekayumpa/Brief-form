@@ -105,14 +105,93 @@ export default function App() {
   };
 
   const validate = (data: FormData): FormErrors => {
-    // Validations désactivées pour les tests, mais structure conservée
     const newErrors: FormErrors = {};
-    /*
-    if (!data.nomEntreprise) newErrors.nomEntreprise = 'Requis';
-    if (!data.secteurActivite) newErrors.secteurActivite = 'Requis';
-    if (!data.emailContact) newErrors.emailContact = 'Requis';
-    if (!data.telephone) newErrors.telephone = 'Requis';
-    */
+
+    // Validation étape 1
+    if (!data.nomEntreprise) newErrors.nomEntreprise = "Requis";
+    if (!data.secteurActivite) newErrors.secteurActivite = "Requis";
+    if (!data.emailContact) newErrors.emailContact = "Requis";
+    if (!data.telephone) newErrors.telephone = "Requis";
+    if (!data.siegeSocial) newErrors.siegeSocial = "Requis";
+    if (!data.siteActuel) newErrors.siteActuel = "Requis";
+    if (!data.urlSouhaitee) newErrors.urlSouhaitee = "Requis";
+    if (!data.fonctionTitre) newErrors.fonctionTitre = "Requis";
+    if (!data.tailleEntreprise) newErrors.tailleEntreprise = "Requis";
+    if (!data.phaseEntreprise) newErrors.phaseEntreprise = "Requis";
+    if (!data.descriptionActivite) newErrors.descriptionActivite = "Requis";
+    if (!data.differenceConcurrents) newErrors.differenceConcurrents = "Requis";
+
+    // Validation étape 2
+    if (data.objectifPrincipal.length === 0)
+      newErrors.objectifPrincipal = "Sélectionnez au moins un objectif";
+    if (!data.ciblePrincipale) newErrors.ciblePrincipale = "Requis";
+    if (!data.zonesGeographiques) newErrors.zonesGeographiques = "Requis";
+    if (!data.messageCle) newErrors.messageCle = "Requis";
+    if (data.tonStyle.length === 0)
+      newErrors.tonStyle = "Sélectionnez au moins un style";
+    if (!data.objectifs12Mois) newErrors.objectifs12Mois = "Requis";
+
+    // Validation étape 3
+    if (!data.budgetGlobal) newErrors.budgetGlobal = "Requis";
+    if (!data.modalitesPaiement) newErrors.modalitesPaiement = "Requis";
+    if (!data.delaiLivraison) newErrors.delaiLivraison = "Requis";
+    if (!data.dateMiseEnLigne) newErrors.dateMiseEnLigne = "Requis";
+    if (!data.contraintesParticulieres)
+      newErrors.contraintesParticulieres = "Requis";
+
+    // Validation étape 4
+    if (!data.nomDomaineSouhaite) newErrors.nomDomaineSouhaite = "Requis";
+    if (!data.statutDomaine) newErrors.statutDomaine = "Requis";
+    if (!data.cmsPrefere) newErrors.cmsPrefere = "Requis";
+    if (!data.hebergement) newErrors.hebergement = "Requis";
+    if (!data.languesSite) newErrors.languesSite = "Requis";
+    if (!data.hebergeurActuel) newErrors.hebergeurActuel = "Requis";
+
+    // Validation étape 5
+    if (!data.couleursSouhaitees) newErrors.couleursSouhaitees = "Requis";
+    if (!data.typographieSouhaitee) newErrors.typographieSouhaitee = "Requis";
+    if (!data.sitesReference) newErrors.sitesReference = "Requis";
+    if (!data.ceQueVousNeVoulezPas) newErrors.ceQueVousNeVoulezPas = "Requis";
+
+    // Validation étape 6
+    if (data.pagesSouhaitees.length === 0)
+      newErrors.pagesSouhaitees = "Sélectionnez au moins une page";
+    if (!data.arborescenceSouhaitee) newErrors.arborescenceSouhaitee = "Requis";
+    if (!data.pagePrioritaire) newErrors.pagePrioritaire = "Requis";
+
+    // Validation étape 7
+    if (data.fonctionnalitesIntegrer.length === 0)
+      newErrors.fonctionnalitesIntegrer =
+        "Sélectionnez au moins une fonctionnalité";
+    if (!data.arborescenceSouhaitee) newErrors.arborescenceSouhaitee = "Requis";
+    if (!data.pagePrioritaire) newErrors.pagePrioritaire = "Requis";
+
+    // Validation étape 8
+    if (data.marketingMix.objectifsMarketing.length === 0)
+      newErrors.marketingMixObjectifs =
+        "Sélectionnez au moins un objectif marketing";
+    if (!data.marketingMix.budgetMarketing)
+      newErrors.marketingMixBudget = "Requis";
+    if (data.marketingMix.canauxPrioritaires.length === 0)
+      newErrors.marketingMixCanaux = "Sélectionnez au moins un canal";
+    if (!data.marketingMix.contenuMarketing)
+      newErrors.marketingMixContenu = "Requis";
+    if (!data.marketingMix.frequencePublication)
+      newErrors.marketingMixFrequence = "Requis";
+    if (!data.marketingMix.kpisPrincipaux)
+      newErrors.marketingMixKpis = "Requis";
+
+    // Validation étape 9
+    if (!data.maintenanceSouhaitee) newErrors.maintenanceSouhaitee = "Requis";
+    if (!data.misesAJour) newErrors.misesAJour = "Requis";
+    if (!data.evolutionsFutures) newErrors.evolutionsFutures = "Requis";
+    if (!data.autresInfosUtiles) newErrors.autresInfosUtiles = "Requis";
+
+    // Validation étape 10
+    if (!data.concurrents.every((c) => c.nom && c.bien && c.mieux)) {
+      newErrors.concurrents = "Tous les champs concurrents sont requis";
+    }
+
     return newErrors;
   };
 
@@ -184,7 +263,11 @@ export default function App() {
         );
 
       case 6:
-        return formData.pagesSouhaitees.length > 0;
+        return (
+          formData.pagesSouhaitees.length > 0 &&
+          formData.arborescenceSouhaitee &&
+          formData.pagePrioritaire
+        );
 
       case 7:
         return (
@@ -223,8 +306,8 @@ export default function App() {
     if (isStepValid()) {
       if (step < totalSteps) setStep(step + 1);
     } else {
-      // Passer directement à l'étape suivante sans validation
-      if (step < totalSteps) setStep(step + 1);
+      // Marquer tous les champs de l'étape actuelle comme touchés pour afficher les erreurs
+      markCurrentStepFieldsAsTouched();
     }
   };
 
@@ -232,8 +315,109 @@ export default function App() {
     if (step > 1) setStep(step - 1);
   };
 
+  const markCurrentStepFieldsAsTouched = () => {
+    const fieldsToTouch: (keyof FormData)[] = [];
+
+    switch (step) {
+      case 1:
+        fieldsToTouch.push(
+          "nomEntreprise",
+          "secteurActivite",
+          "emailContact",
+          "telephone",
+          "siegeSocial",
+          "siteActuel",
+          "urlSouhaitee",
+          "fonctionTitre",
+          "tailleEntreprise",
+          "phaseEntreprise",
+          "descriptionActivite",
+          "differenceConcurrents",
+        );
+        break;
+      case 2:
+        fieldsToTouch.push(
+          "objectifPrincipal",
+          "ciblePrincipale",
+          "zonesGeographiques",
+          "messageCle",
+          "tonStyle",
+          "objectifs12Mois",
+        );
+        break;
+      case 3:
+        fieldsToTouch.push(
+          "budgetGlobal",
+          "modalitesPaiement",
+          "delaiLivraison",
+          "dateMiseEnLigne",
+          "contraintesParticulieres",
+        );
+        break;
+      case 4:
+        fieldsToTouch.push(
+          "nomDomaineSouhaite",
+          "statutDomaine",
+          "cmsPrefere",
+          "hebergement",
+          "languesSite",
+          "hebergeurActuel",
+        );
+        break;
+      case 5:
+        fieldsToTouch.push(
+          "couleursSouhaitees",
+          "typographieSouhaitee",
+          "sitesReference",
+          "ceQueVousNeVoulezPas",
+        );
+        break;
+      case 6:
+        fieldsToTouch.push(
+          "pagesSouhaitees",
+          "arborescenceSouhaitee",
+          "pagePrioritaire",
+        );
+        break;
+      case 7:
+        fieldsToTouch.push(
+          "fonctionnalitesIntegrer",
+          "arborescenceSouhaitee",
+          "pagePrioritaire",
+        );
+        break;
+      case 8:
+        fieldsToTouch.push(
+          "marketingMixObjectifs",
+          "marketingMixBudget",
+          "marketingMixCanaux",
+          "marketingMixContenu",
+          "marketingMixFrequence",
+          "marketingMixKpis",
+        );
+        break;
+      case 9:
+        fieldsToTouch.push(
+          "maintenanceSouhaitee",
+          "misesAJour",
+          "evolutionsFutures",
+          "autresInfosUtiles",
+        );
+        break;
+      case 10:
+        fieldsToTouch.push("concurrents");
+        break;
+    }
+
+    fieldsToTouch.forEach((field) => setFieldTouched(field));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isStepValid()) {
+      markCurrentStepFieldsAsTouched();
+      return;
+    }
     setIsProjectInitialized(true);
 
     confetti({
@@ -601,12 +785,17 @@ export default function App() {
                       <button
                         type="button"
                         onClick={nextStep}
-                        className="btn-primary"
+                        disabled={!isStepValid()}
+                        className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Continuer
                       </button>
                     ) : (
-                      <button type="submit" className="btn-primary">
+                      <button
+                        type="submit"
+                        className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!isStepValid()}
+                      >
                         Finaliser le Brief
                       </button>
                     )}

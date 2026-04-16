@@ -6,10 +6,10 @@ export interface EmailData {
   userEmail: string;
 }
 
-// Service pour envoyer des emails via Formspree (fonctionne sur Vercel)
-export const sendEmailViaVercelAPI = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
+// Service pour envoyer des emails via LWS PHP API
+export const sendEmailViaLWSAPI = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
   try {
-    console.log('Envoi d\'email via Formspree...');
+    console.log('Envoi d\'email via LWS API...');
     console.log('Données:', emailData);
 
     // Créer le contenu de l'email
@@ -34,34 +34,39 @@ Date: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeStri
 Cet email a été généré automatiquement depuis la plateforme Digital Mind+.
     `;
 
-    // Envoyer via Formspree (remplacez par votre vrai Formspree ID)
-    const formData = new FormData();
-    formData.append('name', emailData.userName);
-    formData.append('email', emailData.userEmail);
-    formData.append('subject', `Nouveau Brief Stratégique - ${emailData.formData.nomProjet || 'Projet sans nom'}`);
-    formData.append('message', emailContent);
+    // Envoyer via API LWS PHP
+    const requestData = {
+      userName: emailData.userName,
+      userEmail: emailData.userEmail,
+      nomEntreprise: emailData.formData.nomEntreprise || emailData.formData.nomProjet || 'Projet sans nom',
+      telephone: emailData.formData.telephone || 'non spécifié',
+      objectif: emailData.formData.objectifPrincipal || 'non spécifié',
+      budget: emailData.formData.budgetAlloue || 'non spécifié'
+    };
 
-    const response = await fetch('https://formspree.io/f/xkndzqzj', {
+    const response = await fetch('/lws-deploy.php', {
       method: 'POST',
-      body: formData,
       headers: {
-        'Accept': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
     });
 
-    if (response.ok) {
-      console.log('Email envoyé avec succès via Formspree');
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('Email envoyé avec succès via LWS API');
       return {
         success: true,
-        message: 'Email envoyé avec succès via Formspree !'
+        message: result.message || 'Email envoyé avec succès via LWS !'
       };
     } else {
-      throw new Error('Erreur lors de l\'envoi via Formspree');
+      throw new Error(result.error || 'Erreur lors de l\'envoi via LWS');
     }
 
   } catch (error) {
-    console.error('Erreur lors de l\'envoi via Formspree:', error);
-    
+    console.error('Erreur lors de l\'envoi via LWS:', error);
+
     // Fallback: utiliser mailto
     return await sendViaMailtoFallback(emailData);
   }
