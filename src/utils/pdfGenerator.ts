@@ -43,7 +43,6 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
     doc.setFont('helvetica', 'bold');
     doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth - 15, 17, { align: 'right' });
     doc.setFont('helvetica', 'normal');
-    doc.text('Site Internet', pageWidth - 15, 22, { align: 'right' });
 
     // Ligne de séparation
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
