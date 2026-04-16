@@ -14,48 +14,24 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
 
   // Helper for Header/Footer
   const addHeaderFooter = (currentPage: number, totalPages: number) => {
-    // Logo DM+ comme image (base64)
-    const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAACXBIWXMAAAsTAAALEwEAmpwYAAABOklEQVR4nO3RMQ0AAAjDMO5f9G3jIZQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABG5fGnAAFkck9YAAAAASUVORK5CYII=';
-
-    try {
-      doc.addImage(logoBase64, 'PNG', 15, 5, 25, 10);
-    } catch (error) {
-      // Fallback to text if image fails
-      doc.setFontSize(8);
-      doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DM+', 15, 10);
-    }
+    doc.setFontSize(8);
+    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DM+ COM. & MARKETING', 15, 10);
 
     doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.setFont('helvetica', 'normal');
-    doc.text('Brief de Développement - Site Internet', pageWidth - 15, 10, { align: 'right' });
+    doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
 
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setLineWidth(0.5);
-    doc.line(15, 18, pageWidth - 15, 18);
+    doc.line(15, 12, pageWidth - 15, 12);
 
-    // Footer - Black Banner
-    doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
-    doc.rect(0, pageHeight - 25, pageWidth, 25, 'F');
-
-    // Footer content
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-
-    // Left side - contact info
-    doc.text('communication@dmplus-group.com', 15, pageHeight - 15);
-    doc.text('+221 76 663 82 20', 15, pageHeight - 8);
-
-    // Center - address
-    doc.setFontSize(9);
-    doc.text('Médina rue 37x24, Dakar', pageWidth / 2, pageHeight - 15, { align: 'center' });
-    doc.text('Document confidentiel', pageWidth / 2, pageHeight - 8, { align: 'center' });
-
-    // Right side - page number
-    doc.setFontSize(10);
-    doc.text(`Page ${currentPage} / ${totalPages}`, pageWidth - 15, pageHeight - 12, { align: 'right' });
+    // Footer
+    doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
+    doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+    doc.setFontSize(7);
+    doc.text('communication@dmplus-group.com |  +221 76 663 82 20|  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
   };
 
   const addSectionHeader = (num: string, title: string, y: number) => {
@@ -245,7 +221,9 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Qui fournit les visuels ?', formData.fournisseurVisuels],
       ['Avez-vous un logo ?', formData.avezLogo],
       ['Avez-vous une charte ?', formData.avezCharte],
-      ['Couleurs souhaitées', formData.couleursSouhaitees],
+      ['Couleurs souhaitées', formData.couleursSelectionnees && formData.couleursSelectionnees.length > 0
+        ? formData.couleursSelectionnees.join(', ') + (formData.couleursSelectionnees.length < 3 ? ' (minimum 3 requis)' : '')
+        : 'Aucune couleur sélectionnée'],
       ['Typographie souhaitée', formData.typographieSouhaitee],
       ['Sites de référence appréciés', formData.sitesReference],
       ['Ce que vous ne voulez pas', formData.ceQueVousNeVoulezPas],

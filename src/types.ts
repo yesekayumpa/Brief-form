@@ -49,7 +49,7 @@ export interface FormData {
   sitesReference: string;
   ceQueVousNeVoulezPas: string;
   urlSouhaitee: string;
-  couleurSelectionnee: string;
+  couleursSelectionnees: string[];
   paletteVisible: boolean;
   logoFile: File | null;
   charteFile: File | null;
@@ -149,7 +149,7 @@ export const initialFormData: FormData = {
   sitesReference: '',
   ceQueVousNeVoulezPas: '',
   urlSouhaitee: '',
-  couleurSelectionnee: '#E31E24',
+  couleursSelectionnees: ['#E31E24'],
   paletteVisible: false,
   logoFile: null,
   charteFile: null,
