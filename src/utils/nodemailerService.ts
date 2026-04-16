@@ -51,7 +51,7 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
   }
 };
 
-// Fonction pour générer le PDF en Blob (IDENTIQUE au téléchargement client)
+// Fonction pour générer le PDF en Blob (UTILISE LA FONCTION ORIGINALE)
 const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     try {
@@ -60,17 +60,17 @@ const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
         import('jspdf'),
         import('jspdf-autotable')
       ]).then(([{ default: jsPDF }, { default: autoTable }]) => {
-        // Utiliser exactement la même fonction que le téléchargement client
+        // Utiliser EXACTEMENT la même fonction que le téléchargement client
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
 
-        // Colors (identiques au pdfGenerator.ts)
+        // Colors
         const brandRed = [227, 30, 36]; // #E31E24
         const brandDark = [26, 28, 33]; // #1A1C21
         const brandGray = [156, 163, 175]; // #9CA3AF
 
-        // Helper pour Header/Footer (identique)
+        // Helper for Header/Footer
         const addHeaderFooter = (currentPage: number, totalPages: number) => {
           doc.setFontSize(8);
           doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
@@ -101,167 +101,320 @@ const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
           doc.text(`${num} ${title}`, 20, y + 6.5);
         };
 
-        // --- PAGE 1: COVER (identique) ---
+        // --- PAGE 1: COVER ---
+        // Black Banner
         doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
         doc.rect(15, 30, pageWidth - 30, 60, 'F');
 
-        // Logo et titre (identique)
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(24);
+        doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+        doc.setFontSize(32);
         doc.setFont('helvetica', 'bold');
-        doc.text('BRIEF STRATÉGIQUE', pageWidth / 2, 55, { align: 'center' });
+        doc.text('DM+', 40, 55);
         
-        doc.setFontSize(16);
+        doc.setTextColor(255, 255, 255);
+        doc.text('COM. & MARKETING', 75, 55);
+        
+        doc.setFontSize(14);
         doc.setFont('helvetica', 'normal');
-        doc.text('Développement Web & Digital', pageWidth / 2, 65, { align: 'center' });
+        doc.text('Digital Mind+ Group', pageWidth / 2, 65, { align: 'center' });
 
-        // Informations projet (identique)
+        doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+        doc.line(40, 75, pageWidth - 40, 75);
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 85, { align: 'center' });
+        
+        doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+        doc.setFontSize(18);
+        doc.text('Site Internet', pageWidth / 2, 95, { align: 'center' });
+
+        // Info Boxes
+        const boxWidth = (pageWidth - 40) / 3;
+        const boxY = 115;
+        
+        const drawBox = (x: number, title: string, value: string) => {
+          doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+          doc.rect(x, boxY, boxWidth, 15);
+          doc.setFontSize(8);
+          doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+          doc.text(title, x + 2, boxY + 5);
+          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+          doc.setFontSize(10);
+          doc.text(value, x + 2, boxY + 12);
+        };
+
+        drawBox(15, 'N° Dossier', `DMC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`);
+        drawBox(15 + boxWidth + 5, 'Date', new Date().toLocaleDateString('fr-FR'));
+        drawBox(15 + (boxWidth + 5) * 2, 'Conseiller DM+', '________________________');
+
+        // Mode d'emploi
+        doc.setFillColor(248, 249, 251);
+        doc.rect(15, 145, pageWidth - 30, 25, 'F');
+        doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+        doc.setLineWidth(1);
+        doc.line(15, 145, 15, 170);
+        
+        doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Mode d'emploi", 20, 152);
+        
         doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
-        doc.setFontSize(12);
-        doc.text(`Nom du projet: ${formData.nomProjet || 'Projet sans nom'}`, 20, 110);
-        doc.text(`Client: ${formData.nomEntreprise || 'Non spécifié'}`, 20, 120);
-        doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 130);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        const modeText = "Ce brief est confidentiel et destiné à recueillir toutes les informations nécessaires à la conception de votre site internet. Plus vos réponses seront précises, plus notre proposition sera adaptée à vos besoins réels. Les champs marqués comme obligatoires doivent être remplis.";
+        doc.text(doc.splitTextToSize(modeText, pageWidth - 45), 20, 158);
 
         addHeaderFooter(1, 1);
 
-        // --- PAGE 2: INFORMATIONS CLIENT (identique) ---
+        // --- PAGE 2: INFORMATIONS CLIENT ---
         doc.addPage();
-        addHeaderFooter(2, 2);
-        
-        addSectionHeader('01', 'INFORMATIONS CLIENT', 30);
-        
-        doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        
-        let yPos = 50;
-        const addField = (label: string, value: string) => {
-          doc.setFont('helvetica', 'bold');
-          doc.text(label, 20, yPos);
-          doc.setFont('helvetica', 'normal');
-          doc.text(value || 'Non spécifié', 60, yPos);
-          yPos += 8;
-        };
+        addHeaderFooter(2, 6);
+        addSectionHeader('01', "INFORMATIONS SUR LE CLIENT & L'ENTREPRISE", 20);
 
-        addField('Entreprise:', formData.nomEntreprise);
-        addField('Secteur:', formData.secteurActivite);
-        addField('Siège social:', formData.siegeSocial);
-        addField('Site actuel:', formData.siteActuel);
-        addField('URL souhaitée:', formData.urlSouhaitee);
-        addField('Fonction:', formData.fonctionTitre);
-        addField('Email:', formData.emailContact);
-        addField('Téléphone:', formData.telephone);
-        addField('Taille:', formData.tailleEntreprise);
-        addField('Phase:', formData.phaseEntreprise);
-
-        // --- PAGE 3: DESCRIPTION ACTIVITÉ ---
-        if (formData.descriptionActivite || formData.differenceConcurrents) {
-          doc.addPage();
-          addHeaderFooter(3, 3);
-          
-          addSectionHeader('02', 'DESCRIPTION ACTIVITÉ', 30);
-          
-          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          
-          let yPos = 50;
-          
-          if (formData.descriptionActivite) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Description de l\'activité:', 20, yPos);
-            yPos += 8;
-            doc.setFont('helvetica', 'normal');
-            const lines = doc.splitTextToSize(formData.descriptionActivite, pageWidth - 40);
-            lines.forEach((line: string) => {
-              doc.text(line, 20, yPos);
-              yPos += 6;
-            });
-            yPos += 5;
+        autoTable(doc, {
+          startY: 35,
+          head: [],
+          body: [
+            ['Nom de l\'entreprise', formData.nomEntreprise],
+            ['Secteur d\'activité', formData.secteurActivite],
+            ['Pays / Ville du siège', formData.siegeSocial],
+            ['Site internet actuel', formData.siteActuel],
+            ['Fonction / Titre', formData.fonctionTitre],
+            ['Email de contact', formData.emailContact],
+            ['Téléphone', formData.telephone],
+            ['Taille de l\'entreprise', formData.tailleEntreprise],
+            ['Phase de l\'entreprise', formData.phaseEntreprise],
+            ['Description de l\'activité', formData.descriptionActivite],
+            ['En quoi vous êtes différent', formData.differenceConcurrents],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
           }
-          
-          if (formData.differenceConcurrents) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Différence avec les concurrents:', 20, yPos);
-            yPos += 8;
-            doc.setFont('helvetica', 'normal');
-            const lines = doc.splitTextToSize(formData.differenceConcurrents, pageWidth - 40);
-            lines.forEach((line: string) => {
-              doc.text(line, 20, yPos);
-              yPos += 6;
-            });
+        });
+
+        // --- PAGE 3: OBJECTIFS ---
+        addSectionHeader('02', "OBJECTIFS DU PROJET", (doc as any).lastAutoTable.finalY + 10);
+
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 25,
+          head: [],
+          body: [
+            ['Objectifs principaux du site', formData.objectifPrincipal.length > 0 ? formData.objectifPrincipal.join(', ') + (formData.objectifAutre ? ` (${formData.objectifAutre})` : '') : 'Non spécifié'],
+            ['Cible principale du site', formData.ciblePrincipale],
+            ['Zones géographiques cibles', formData.zonesGeographiques],
+            ['Message clé du site', formData.messageCle],
+            ['Objectifs à 12 mois via le site', formData.objectifs12Mois],
+            ['Ton et style souhaités', formData.tonStyle.join(', ')],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
           }
-        }
+        });
 
-        // --- PAGE 4: OBJECTIFS ---
-        if (formData.objectifPrincipal || formData.ciblePrincipale) {
-          doc.addPage();
-          addHeaderFooter(4, 4);
-          
-          addSectionHeader('03', 'OBJECTIFS DU PROJET', 30);
-          
-          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          
-          let yPos = 50;
-          
-          if (formData.objectifPrincipal && formData.objectifPrincipal.length > 0) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Objectifs principaux:', 20, yPos);
-            yPos += 8;
-            doc.setFont('helvetica', 'normal');
-            formData.objectifPrincipal.forEach((objectif: string) => {
-              const lines = doc.splitTextToSize(`• ${objectif}`, pageWidth - 40);
-              lines.forEach((line: string) => {
-                doc.text(line, 20, yPos);
-                yPos += 6;
-              });
-            });
-            yPos += 5;
+        // --- PAGE 4: BUDGET & DÉLAIS ---
+        doc.addPage();
+        addHeaderFooter(3, 6);
+        addSectionHeader('03', "BUDGET & DÉLAIS", 20);
+
+        autoTable(doc, {
+          startY: 35,
+          head: [],
+          body: [
+            ['Budget global envisagé', formData.budgetGlobal],
+            ['Modalités de paiement', formData.modalitesPaiement + (formData.modaliteAutre ? ` (${formData.modaliteAutre})` : '')],
+            ['Délai de livraison souhaité', formData.delaiLivraison],
+            ['Date de mise en ligne souhaitée', formData.dateMiseEnLigne],
+            ['Contraintes particulières', formData.contraintesParticulieres],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
           }
-          
-          if (formData.ciblePrincipale) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Cible principale:', 20, yPos);
-            yPos += 8;
-            doc.setFont('helvetica', 'normal');
-            const lines = doc.splitTextToSize(formData.ciblePrincipale, pageWidth - 40);
-            lines.forEach((line: string) => {
-              doc.text(line, 20, yPos);
-              yPos += 6;
-            });
+        });
+
+        // --- PAGE 5: TECHNIQUE ---
+        addSectionHeader('04', "NOM DE DOMAINE & ASPECTS TECHNIQUES", (doc as any).lastAutoTable.finalY + 10);
+
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 25,
+          head: [],
+          body: [
+            ['Nom de domaine souhaité', formData.nomDomaineSouhaite],
+            ['Statut du nom de domaine', formData.statutDomaine],
+            ['CMS préféré', formData.cmsPrefere + (formData.cmsAutre ? ` (${formData.cmsAutre})` : '')],
+            ['Hébergement', formData.hebergement],
+            ['Nom de l\'hébergeur actuel', formData.hebergeurActuel],
+            ['Langues du site', formData.languesSite + (formData.langueAutre ? ` (${formData.langueAutre})` : '')],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
           }
-        }
+        });
 
-        // --- PAGE 5: BUDGET ET DÉLAIS ---
-        if (formData.budgetGlobal || formData.delaiLivraison) {
-          doc.addPage();
-          addHeaderFooter(5, 5);
-          
-          addSectionHeader('04', 'BUDGET ET DÉLAIS', 30);
-          
-          doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          
-          let yPos = 50;
-          const addField = (label: string, value: string) => {
-            doc.setFont('helvetica', 'bold');
-            doc.text(label, 20, yPos);
-            doc.setFont('helvetica', 'normal');
-            doc.text(value || 'Non spécifié', 60, yPos);
-            yPos += 8;
-          };
+        // --- PAGE 6: CONTENU ---
+        doc.addPage();
+        addHeaderFooter(4, 6);
+        addSectionHeader('05', "CONTENU DU SITE", 20);
 
-          addField('Budget global:', formData.budgetGlobal);
-          addField('Modalités de paiement:', formData.modalitesPaiement);
-          addField('Délai de livraison:', formData.delaiLivraison);
-          addField('Date de mise en ligne:', formData.dateMiseEnLigne);
-          addField('Contraintes particulières:', formData.contraintesParticulieres);
-        }
+        autoTable(doc, {
+          startY: 35,
+          head: [],
+          body: [
+            ['Qui rédige les textes ?', formData.redacteurTextes],
+            ['Qui fournit les visuels ?', formData.fournisseurVisuels],
+            ['Avez-vous un logo ?', formData.avezLogo],
+            ['Avez-vous une charte ?', formData.avezCharte],
+            ['Couleurs souhaitées', formData.couleursSouhaitees],
+            ['Typographie souhaitée', formData.typographieSouhaitee],
+            ['Sites de référence appréciés', formData.sitesReference],
+            ['Ce que vous ne voulez pas', formData.ceQueVousNeVoulezPas],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
+          }
+        });
 
-        // Convertir en Blob
+        // --- PAGE 7: STRUCTURE & FONCTIONNALITÉS ---
+        addSectionHeader('06', "STRUCTURE DU SITE — PAGES SOUHAITÉES", (doc as any).lastAutoTable.finalY + 10);
+
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 25,
+          head: [],
+          body: [
+            ['Pages souhaitées', formData.pagesSouhaitees.join(', ') + (formData.pagesAutres ? ` (${formData.pagesAutres})` : '')],
+            ['Arborescence souhaitée', formData.arborescenceSouhaitee],
+            ['Page(s) prioritaire(s)', formData.pagePrioritaire],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
+          }
+        });
+
+        doc.addPage();
+        addHeaderFooter(5, 6);
+        addSectionHeader('07', "FONCTIONNALITÉS SOUHAITÉES", 20);
+
+        autoTable(doc, {
+          startY: 35,
+          head: [],
+          body: [
+            ['Fonctionnalités à intégrer', formData.fonctionnalitesIntegrer.join(', ') + (formData.fonctionnaliteAutre ? ` (${formData.fonctionnaliteAutre})` : '')],
+            ['Réseaux sociaux à intégrer', formData.reseauxSociaux.join(', ')],
+            ['Adaptabilité mobile', formData.adaptabiliteMobile],
+            ['PWA (Progressive Web App)', formData.pwa ? 'Oui' : 'Non'],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
+          }
+        });
+
+        // --- PAGE 8: MARKETING MIX ---
+        addSectionHeader('08', "MARKETING MIX", (doc as any).lastAutoTable.finalY + 10);
+
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 25,
+          head: [],
+          body: [
+            ['Objectifs Marketing', formData.marketingMix.objectifsMarketing.length > 0 ? formData.marketingMix.objectifsMarketing.join(', ') : 'Non spécifié'],
+            ['Budget Marketing Mensuel', formData.marketingMix.budgetMarketing || 'Non spécifié'],
+            ['Canaux Prioritaires', formData.marketingMix.canauxPrioritaires.length > 0 ? formData.marketingMix.canauxPrioritaires.join(', ') : 'Non spécifié'],
+            ['Contenu Marketing', formData.marketingMix.contenuMarketing || 'Non spécifié'],
+            ['Fréquence Publication', formData.marketingMix.frequencePublication || 'Non spécifié'],
+            ['KPIs Principaux', formData.marketingMix.kpisPrincipaux || 'Non spécifié'],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
+          }
+        });
+
+        // Services Additionnels
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 15,
+          head: [['Services Marketing Additionnels', 'Sélection']],
+          body: [
+            ['SEO Stratégique', formData.seoStrategique],
+            ['Campagnes PPC', formData.campagnesPPC],
+            ['Email Marketing', formData.emailMarketing],
+            ['Mobile Strategy', formData.mobileStrategy],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          headStyles: { fillColor: [227, 30, 36], textColor: 255, fontStyle: 'bold' },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
+          }
+        });
+
+        // --- PAGE 9: MAINTENANCE ---
+        doc.addPage();
+        addHeaderFooter(6, 6);
+        addSectionHeader('09', "MAINTENANCE & ÉVOLUTION POST-LIVRAISON", 20);
+
+        autoTable(doc, {
+          startY: 35,
+          head: [],
+          body: [
+            ['Maintenance souhaitée', formData.maintenanceSouhaitee],
+            ['Mises à jour du contenu', formData.misesAJour],
+            ['Évolutions futures envisagées', formData.evolutionsFutures],
+            ['Autres informations utiles', formData.autresInfosUtiles],
+          ],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
+          }
+        });
+
+        // --- PAGE 10: ANALYSE CONCURRENTIELLE ---
+        addSectionHeader('10', "ANALYSE CONCURRENTIELLE", (doc as any).lastAutoTable.finalY + 10);
+
+        const concurrentsBody = formData.concurrents.filter(c => c.nom).map((c, i) => [
+          `Concurrent ${i + 1}`,
+          `Nom: ${c.nom}\nCe qu'ils font bien: ${c.bien}\nCe que vous faites mieux: ${c.mieux}` 
+        ]);
+
+        autoTable(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 25,
+          head: [],
+          body: concurrentsBody.length > 0 ? concurrentsBody : [['Aucun concurrent renseigné', '']],
+          theme: 'grid',
+          styles: { fontSize: 9, cellPadding: 5 },
+          columnStyles: {
+            0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+            1: { cellWidth: pageWidth - 90 }
+          }
+        });
+
+        // Convertir en Blob (au lieu de save)
         const pdfBlob = new Blob([doc.output('blob')], { type: 'application/pdf' });
         resolve(pdfBlob);
       }).catch(reject);
