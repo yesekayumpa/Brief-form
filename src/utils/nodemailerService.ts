@@ -1,6 +1,7 @@
 import { FormData as BriefFormData } from '../types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import dmLogo from '/IMG_3335.png';
 
 // Types pour le service d'email
 export interface EmailData {
@@ -22,24 +23,93 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
   // Helper for Header/Footer
   const addHeaderFooter = (currentPage: number, totalPages: number) => {
-    doc.setFontSize(8);
-    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DM+ COM. & MARKETING', 15, 10);
+    // Header avec logo amélioré
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, 25, 'F');
 
-    doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
+    // Logo DM+ en header
+    try {
+      doc.addImage(dmLogo, 'PNG', 15, 8, 25, 12);
+    } catch (error) {
+      // Fallback au texte si l'image ne charge pas
+      doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DM+', 15, 17);
+    }
+
+    doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('Brief de Développement - Site Internet', pageWidth - 15, 10, { align: 'right' });
+    doc.text('COM. & MARKETING', 35, 17);
 
+    doc.setFontSize(10);
+    doc.text('Digital Mind+ Group', 35, 22);
+
+    // Titre du document à droite
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth - 15, 17, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Site Internet', pageWidth - 15, 22, { align: 'right' });
+
+    // Ligne de séparation
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
-    doc.setLineWidth(0.5);
-    doc.line(15, 12, pageWidth - 15, 12);
+    doc.setLineWidth(1);
+    doc.line(0, 25, pageWidth, 25);
 
     // Footer
-    doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
-    doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+    const footerY = pageHeight - 22;
+
+    // Red Bar
+    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.rect(0, footerY, 75, 12, 'F');
+
+    // Company Info
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(7);
-    doc.text('communication@dmplus-group.com  |  +221 76 619 34 10 / 33 829 58 06  |  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('DIGITAL MIND + GROUP', 83, footerY + 3);
+    doc.text('NINEA : 006879227', 83, footerY + 7);
+    doc.text('RCCM : SN STL 2018 A0973', 83, footerY + 11);
+
+    // Vertical Line
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.line(123, footerY + 1, 123, footerY + 11);
+
+    // Contact Info
+    doc.setFont('helvetica', 'normal');
+
+    // Simple Icons
+    const iconX = 128;
+    doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.setLineWidth(0.1);
+
+    // Pin Icon
+    doc.circle(iconX, footerY + 2.5, 0.8);
+    doc.line(iconX, footerY + 3.3, iconX, footerY + 4);
+
+    // Phone Icon
+    doc.rect(iconX - 0.8, footerY + 6, 1.6, 2);
+
+    // Mail Icon
+    doc.rect(iconX - 1, footerY + 10, 2, 1.4);
+    doc.line(iconX - 1, footerY + 10, iconX, footerY + 10.7);
+    doc.line(iconX + 1, footerY + 10, iconX, footerY + 10.7);
+
+    doc.text('Médina rue 37x24 / Dakar, Sénégal', 132, footerY + 3);
+    doc.text('(+221) 76 619 34 10 / 33 829 58 06', 132, footerY + 7);
+    doc.text('communication@dmplus-group.com', 132, footerY + 11);
+
+    // Dark Square
+    doc.setFillColor(40, 40, 40);
+    doc.rect(pageWidth - 22, footerY, 22, 12, 'F');
+
+    // Page Number
+    doc.setFontSize(6);
+    doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
+    doc.text(`Page ${currentPage} / ${totalPages}`, pageWidth - 15, pageHeight - 5, { align: 'right' });
   };
 
   // Helper for options with checkboxes

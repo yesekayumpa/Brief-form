@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FormData as BriefFormData } from '../types';
+import dmLogo from '/IMG_3335.png';
 
 export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false) => {
   const doc = new jsPDF();
@@ -14,24 +15,93 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
 
   // Helper for Header/Footer
   const addHeaderFooter = (currentPage: number, totalPages: number) => {
-    doc.setFontSize(8);
-    doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DM+ COM. & MARKETING', 15, 10);
+    // Header avec logo amélioré
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, 25, 'F');
 
-    doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
+    // Logo DM+ en header
+    try {
+      doc.addImage(dmLogo, 'PNG', 15, 8, 25, 12);
+    } catch (error) {
+      // Fallback au texte si l'image ne charge pas
+      doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DM+', 15, 17);
+    }
+
+    doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
+    
 
+    doc.setFontSize(10);
+    
+
+    // Titre du document à droite
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth - 15, 17, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Site Internet', pageWidth - 15, 22, { align: 'right' });
+
+    // Ligne de séparation
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
-    doc.setLineWidth(0.5);
-    doc.line(15, 12, pageWidth - 15, 12);
+    doc.setLineWidth(1);
+    doc.line(0, 25, pageWidth, 25);
 
     // Footer
-    doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
-    doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+    const footerY = pageHeight - 22;
+
+    // Red Bar
+    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.rect(0, footerY, 75, 12, 'F');
+
+    // Company Info
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(7);
-    doc.text('communication@dmplus-group.com |  +221 76 663 82 20|  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('DIGITAL MIND + GROUP', 83, footerY + 3);
+    doc.text('NINEA : 006879227', 83, footerY + 7);
+    doc.text('RCCM : SN STL 2018 A0973', 83, footerY + 11);
+
+    // Vertical Line
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.2);
+    doc.line(123, footerY + 1, 123, footerY + 11);
+
+    // Contact Info
+    doc.setFont('helvetica', 'normal');
+
+    // Simple Icons
+    const iconX = 128;
+    doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.setLineWidth(0.1);
+
+    // Pin Icon
+    doc.circle(iconX, footerY + 2.5, 0.8);
+    doc.line(iconX, footerY + 3.3, iconX, footerY + 4);
+
+    // Phone Icon
+    doc.rect(iconX - 0.8, footerY + 6, 1.6, 2);
+
+    // Mail Icon
+    doc.rect(iconX - 1, footerY + 10, 2, 1.4);
+    doc.line(iconX - 1, footerY + 10, iconX, footerY + 10.7);
+    doc.line(iconX + 1, footerY + 10, iconX, footerY + 10.7);
+
+    doc.text('Médina rue 37x24 / Dakar, Sénégal', 132, footerY + 3);
+    doc.text('(+221) 76 619 34 10 / 33 829 58 06', 132, footerY + 7);
+    doc.text('communication@dmplus-group.com', 132, footerY + 11);
+
+    // Dark Square
+    doc.setFillColor(40, 40, 40);
+    doc.rect(pageWidth - 22, footerY, 22, 12, 'F');
+
+    // Page Number
+    doc.setFontSize(6);
+    doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
+    doc.text(`Page ${currentPage} / ${totalPages}`, pageWidth - 15, pageHeight - 5, { align: 'right' });
   };
 
   const addSectionHeader = (num: string, title: string, y: number) => {
@@ -46,36 +116,36 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   // --- PAGE 1: COVER ---
   // Black Banner avec logo DM+ (exactement comme votre exemple)
   doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
-  doc.rect(15, 30, pageWidth - 30, 60, 'F');
+  doc.rect(15, 35, pageWidth - 30, 60, 'F');
 
   // Logo DM+ exactement comme votre exemple
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(32);
   doc.setFont('helvetica', 'bold');
-  doc.text('DM+', 40, 55);
+  doc.text('DM+', 40, 60);
 
   doc.setTextColor(255, 255, 255);
-  doc.text('COM. & MARKETING', 75, 55);
+  doc.text('COM. & MARKETING', 75, 60);
 
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
-  doc.text('Digital Mind+ Group', pageWidth / 2, 65, { align: 'center' });
+  doc.text('Digital Mind+ Group', pageWidth / 2, 70, { align: 'center' });
 
   doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
-  doc.line(40, 75, pageWidth - 40, 75);
+  doc.line(40, 80, pageWidth - 40, 80);
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 85, { align: 'center' });
+  doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 90, { align: 'center' });
 
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(18);
-  doc.text('Site Internet', pageWidth / 2, 95, { align: 'center' });
+  doc.text('Site Internet', pageWidth / 2, 100, { align: 'center' });
 
   // Info Boxes
   const boxWidth = (pageWidth - 40) / 3;
-  const boxY = 115;
+  const boxY = 120;
 
   const drawBox = (x: number, title: string, value: string) => {
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
@@ -94,10 +164,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
 
   // Mode d'emploi
   doc.setFillColor(248, 249, 251);
-  doc.rect(15, 145, pageWidth - 30, 25, 'F');
+  doc.rect(15, 150, pageWidth - 30, 25, 'F');
   doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setLineWidth(1);
-  doc.line(15, 145, 15, 170);
+  doc.line(15, 150, 15, 175);
 
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(10);
@@ -115,10 +185,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   // --- PAGE 2: INFORMATIONS CLIENT ---
   doc.addPage();
   addHeaderFooter(2, 6);
-  addSectionHeader('01', "INFORMATIONS SUR LE CLIENT & L'ENTREPRISE", 20);
+  addSectionHeader('01', "INFORMATIONS SUR LE CLIENT & L'ENTREPRISE", 35);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 50,
     head: [],
     body: [
       ['Nom de l\'entreprise', formData.nomEntreprise],
@@ -134,7 +204,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['En quoi vous êtes différent', formData.differenceConcurrents],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -142,7 +213,7 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   });
 
   // --- PAGE 3: OBJECTIFS ---
-  addSectionHeader('02', "OBJECTIFS DU PROJET", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('02', "OBJECTIFS DU PROJET", (doc as any).lastAutoTable.finalY + 15);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
@@ -156,7 +227,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Ton et style souhaités', formData.tonStyle.join(', ')],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -166,10 +238,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   // --- PAGE 4: BUDGET & DÉLAIS ---
   doc.addPage();
   addHeaderFooter(3, 6);
-  addSectionHeader('03', "BUDGET & DÉLAIS", 20);
+  addSectionHeader('03', "BUDGET & DÉLAIS", 30);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 40,
     head: [],
     body: [
       ['Budget global envisagé', formData.budgetGlobal],
@@ -179,7 +251,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Contraintes particulières', formData.contraintesParticulieres],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -187,7 +260,7 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   });
 
   // --- PAGE 5: TECHNIQUE ---
-  addSectionHeader('04', "NOM DE DOMAINE & ASPECTS TECHNIQUES", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('04', "NOM DE DOMAINE & ASPECTS TECHNIQUES", (doc as any).lastAutoTable.finalY + 15);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
@@ -201,7 +274,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Langues du site', formData.languesSite + (formData.langueAutre ? ` (${formData.langueAutre})` : '')],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -211,10 +285,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   // --- PAGE 6: CONTENU ---
   doc.addPage();
   addHeaderFooter(4, 6);
-  addSectionHeader('05', "CONTENU DU SITE", 20);
+  addSectionHeader('05', "CONTENU DU SITE", 30);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 40,
     head: [],
     body: [
       ['Qui rédige les textes ?', formData.redacteurTextes],
@@ -229,7 +303,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Ce que vous ne voulez pas', formData.ceQueVousNeVoulezPas],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -237,7 +312,7 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   });
 
   // --- PAGE 7: STRUCTURE & FONCTIONNALITÉS ---
-  addSectionHeader('06', "STRUCTURE DU SITE — PAGES SOUHAITÉES", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('06', "STRUCTURE DU SITE — PAGES SOUHAITÉES", (doc as any).lastAutoTable.finalY + 15);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
@@ -248,7 +323,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Page(s) prioritaire(s)', formData.pagePrioritaire],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -257,10 +333,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
 
   doc.addPage();
   addHeaderFooter(5, 6);
-  addSectionHeader('07', "FONCTIONNALITÉS SOUHAITÉES", 20);
+  addSectionHeader('07', "FONCTIONNALITÉS SOUHAITÉES", 30);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 40,
     head: [],
     body: [
       ['Fonctionnalités à intégrer', formData.fonctionnalitesIntegrer.join(', ') + (formData.fonctionnaliteAutre ? ` (${formData.fonctionnaliteAutre})` : '')],
@@ -269,7 +345,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['PWA (Progressive Web App)', formData.pwa ? 'Oui' : 'Non'],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -277,7 +354,7 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   });
 
   // --- PAGE 8: MARKETING MIX ---
-  addSectionHeader('08', "MARKETING MIX", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('08', "MARKETING MIX", (doc as any).lastAutoTable.finalY + 15);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
@@ -291,7 +368,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['KPIs Principaux', formData.marketingMix.kpisPrincipaux || 'Non spécifié'],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
@@ -309,7 +387,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Mobile Strategy', formData.mobileStrategy],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     headStyles: { fillColor: [227, 30, 36], textColor: 255, fontStyle: 'bold' },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
@@ -320,10 +399,10 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   // --- PAGE 9: MAINTENANCE ---
   doc.addPage();
   addHeaderFooter(6, 6);
-  addSectionHeader('09', "MAINTENANCE & ÉVOLUTION POST-LIVRAISON", 20);
+  addSectionHeader('09', "MAINTENANCE & ÉVOLUTION POST-LIVRAISON", 30);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 40,
     head: [],
     body: [
       ['Maintenance souhaitée', formData.maintenanceSouhaitee],
@@ -332,7 +411,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
       ['Autres informations utiles', formData.autresInfosUtiles],
     ],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
@@ -340,7 +420,7 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
   });
 
   // --- PAGE 10: ANALYSE CONCURRENTIELLE ---
-  addSectionHeader('10', "ANALYSE CONCURRENTIELLE", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('10', "ANALYSE CONCURRENTIELLE", (doc as any).lastAutoTable.finalY + 15);
 
   const concurrentsBody = formData.concurrents.filter(c => c.nom).map((c, i) => [
     `Concurrent ${i + 1}`,
@@ -352,7 +432,8 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
     head: [],
     body: concurrentsBody.length > 0 ? concurrentsBody : [['Aucun concurrent renseigné', '']],
     theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
+    styles: { fontSize: 9, cellPadding: 4 },
+    margin: { bottom: 30 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
       1: { cellWidth: pageWidth - 90 }
