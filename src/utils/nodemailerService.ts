@@ -51,40 +51,19 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
   }
 };
 
-// Fonction pour générer le PDF en Blob (UTILISE generateBriefPDF EXISTANT)
+// Fonction pour générer le PDF en Blob (UTILISE generateBriefPDF AVEC returnAsBlob)
 const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
-  return new Promise((resolve, reject) => {
-    try {
-      // Importer les modules et la fonction existante
-      Promise.all([
-        import('jspdf'),
-        import('jspdf-autotable'),
-        import('../utils/pdfGenerator')
-      ]).then(([{ default: jsPDF }, { default: autoTable }, { generateBriefPDF }]) => {
-        // Créer un document temporaire pour capturer la sortie
-        const originalSave = jsPDF.prototype.save;
-        let pdfOutput: string | ArrayBuffer = '';
+  try {
+    // Importer la fonction existante avec le paramètre returnAsBlob=true
+    const { generateBriefPDF } = await import('../utils/pdfGenerator');
 
-        // Remplacer la fonction save pour capturer la sortie
-        jsPDF.prototype.save = function (filename: string) {
-          pdfOutput = this.output('arraybuffer');
-          return pdfOutput;
-        };
+    // Utiliser directement votre fonction existante
+    const pdfBlob = generateBriefPDF(formData, true);
 
-        // Utiliser la fonction existante generateBriefPDF
-        generateBriefPDF(formData);
-
-        // Restaurer la fonction save originale
-        jsPDF.prototype.save = originalSave;
-
-        // Créer le Blob avec la sortie capturée
-        const pdfBlob = new Blob([pdfOutput], { type: 'application/pdf' });
-        resolve(pdfBlob);
-      }).catch(reject);
-    } catch (error) {
-      reject(error);
-    }
-  });
+    return pdfBlob;
+  } catch (error) {
+    throw new Error(`Erreur lors de la génération du PDF: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+  }
 };
 
 // Alternative: Utiliser un service SMTP relay

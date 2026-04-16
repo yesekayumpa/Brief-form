@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FormData as BriefFormData } from '../types';
 
-export const generateBriefPDF = (formData: BriefFormData) => {
+export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -357,5 +357,9 @@ export const generateBriefPDF = (formData: BriefFormData) => {
     }
   });
 
-  doc.save(`Brief_DigitalMind_${formData.nomEntreprise.replace(/\s+/g, '_') || 'Projet'}.pdf`);
+  if (returnAsBlob) {
+    return new Blob([doc.output('blob')], { type: 'application/pdf' });
+  } else {
+    doc.save(`Brief_DigitalMind_${formData.nomEntreprise.replace(/\s+/g, '_') || 'Projet'}.pdf`);
+  }
 };
