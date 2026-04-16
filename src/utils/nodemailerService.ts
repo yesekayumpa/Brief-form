@@ -388,23 +388,36 @@ const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
 // Fonction principale pour envoyer l'email avec le PDF
 export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promise<{ success: boolean; message: string }> => {
   try {
+    console.log('🚀 Début envoi email avec les données:', {
+      userName: emailData.userName,
+      userEmail: emailData.userEmail,
+      nomEntreprise: emailData.formData?.nomEntreprise
+    });
+
     // Générer le PDF en Blob
+    console.log('📄 Génération du PDF...');
     const pdfBlob = await generatePDFBlob(emailData.formData);
+    console.log('✅ PDF généré, taille:', pdfBlob.size);
 
     // Créer FormData pour l'upload (utiliser directement le Blob)
+    console.log('📋 Création FormData...');
     const formData = new FormData();
     formData.append('convention_pdf', pdfBlob, `Convention_${emailData.formData.nomEntreprise}_DM_Invest.pdf`);
     formData.append('userName', emailData.userName);
     formData.append('userEmail', emailData.userEmail);
     formData.append('nomEntreprise', emailData.formData.nomEntreprise);
+    console.log('✅ FormData créé');
 
     // Envoyer à l'API backend
+    console.log('📤 Envoi à l\'API backend...');
     const response = await fetch('/api/send-email', {
       method: 'POST',
       body: formData,
     });
+    console.log('📡 Réponse API:', response.status, response.statusText);
 
     const result = await response.json();
+    console.log('📋 Résultat API:', result);
 
     return {
       success: result.success,
@@ -412,7 +425,11 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
     };
 
   } catch (error) {
-    console.error('Erreur lors de l\'envoi via Nodemailer API:', error);
+    console.error('❌ Erreur détaillée lors de l\'envoi:', {
+      error: error,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+      stack: error instanceof Error ? error.stack : 'No stack'
+    });
 
     return {
       success: false,
