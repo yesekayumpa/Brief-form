@@ -356,7 +356,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   if (returnAsBlob) {
     return new Blob([doc.output('blob')], { type: 'application/pdf' });
   } else {
-    doc.save(`Brief_DigitalMind_${formData.nomEntreprise.replace(/\s+/g, '_') || 'Projet'}.pdf`);
+    doc.save(`Convention_${formData.nomEntreprise}_DM_Invest.pdf`);
     return new Blob([doc.output('blob')], { type: 'application/pdf' });
   }
 };
