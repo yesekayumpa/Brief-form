@@ -416,12 +416,43 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
     });
     console.log('📡 Réponse API:', response.status, response.statusText);
 
-    const result = await response.json();
-    console.log('📋 Résultat API:', result);
+    // Vérifier si la réponse est OK avant de parser
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('📡 Erreur HTTP:', response.status, errorText);
+      return {
+        success: false,
+        message: `Erreur HTTP ${response.status}: ${errorText}`
+      };
+    }
+
+    // Parser la réponse JSON en toute sécurité
+    let result;
+    try {
+      const responseText = await response.text();
+      console.log('📡 Réponse brute:', responseText);
+      result = JSON.parse(responseText);
+      console.log('� Résultat parsé:', result);
+    } catch (parseError) {
+      console.error('📡 Erreur parsing JSON:', parseError);
+      return {
+        success: false,
+        message: 'Réponse serveur invalide'
+      };
+    }
+
+    // Vérifier que le résultat a les propriétés attendues
+    if (!result || typeof result.success === 'undefined') {
+      console.error('📡 Résultat invalide:', result);
+      return {
+        success: false,
+        message: 'Réponse serveur mal formatée'
+      };
+    }
 
     return {
       success: result.success,
-      message: result.message
+      message: result.message || 'Opération terminée'
     };
 
   } catch (error) {
