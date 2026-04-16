@@ -1,5 +1,8 @@
 import { FormData as BriefFormData } from '../types';
+const jsPDF = require('jspdf').default;
+const autoTable = require('jspdf-autotable').default;
 
+// Interface pour les données d'email
 export interface EmailData {
   formData: BriefFormData;
   userName: string;
@@ -54,10 +57,10 @@ export const sendBriefEmailWithNodemailer = async (emailData: EmailData): Promis
 // Fonction pour générer le PDF en Blob (UTILISE generateBriefPDF AVEC returnAsBlob)
 const generatePDFBlob = async (formData: BriefFormData): Promise<Blob> => {
   try {
-    // Importer la fonction existante avec le paramètre returnAsBlob=true
-    const { generateBriefPDF } = await import('../utils/pdfGenerator');
+    // Importer avec require pour éviter les erreurs d'import dynamique
+    const { generateBriefPDF } = require('../utils/pdfGenerator');
 
-    // Utiliser directement votre fonction existante
+    // Utiliser directement votre fonction existante avec returnAsBlob=true
     const pdfBlob = generateBriefPDF(formData, true);
 
     return pdfBlob;
