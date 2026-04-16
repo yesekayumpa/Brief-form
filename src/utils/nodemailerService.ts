@@ -20,8 +20,50 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   const brandDark = [26, 28, 33]; // #1A1C21
   const brandGray = [156, 163, 175]; // #9CA3AF
 
+  // Helper function to add header and footer to each page
+  const addHeaderFooter = (pageNum: number, totalPages: number) => {
+    // Save current state
+    doc.saveGraphicsState();
+
+    // --- HEADER (Red Banner) ---
+    doc.setFillColor(brandRed[0], brandRed[1], brandRed[2]);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+
+    // Logo DM+ in header
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DM+', 20, 25);
+
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'normal');
+    doc.text('COM. & MARKETING', 55, 25);
+
+    doc.setFontSize(12);
+    doc.text('Digital Mind+ Group', pageWidth - 20, 25, { align: 'right' });
+
+    // --- FOOTER (Black Banner) ---
+    doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
+    doc.rect(0, pageHeight - 25, pageWidth, 25, 'F');
+
+    // Footer content
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    // Left side - contact info
+    doc.text('contact@dmplus-group.com', 20, pageHeight - 15);
+    doc.text('+225 27 23 45 67 89 | +225 07 07 77 88 99', 20, pageHeight - 8);
+
+    // Right side - page number
+    doc.text(`Page ${pageNum} / ${totalPages}`, pageWidth - 20, pageHeight - 12, { align: 'right' });
+
+    // Restore state
+    doc.restoreGraphicsState();
+  };
+
   // Helper for Header/Footer
-  const addHeaderFooter = (currentPage: number, totalPages: number) => {
+  const addHeaderFooterPage = (currentPage: number, totalPages: number) => {
     doc.setFontSize(8);
     doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setFont('helvetica', 'bold');
@@ -60,37 +102,46 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   };
 
   // --- PAGE 1: COVER ---
-  // Black Banner
-  doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
-  doc.rect(15, 30, pageWidth - 30, 60, 'F');
+  // Add header and footer first
+  addHeaderFooter(1, 10);
 
-  doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
-  doc.setFontSize(32);
+  // Content area with margins for header/footer
+  const contentTop = 50; // Below header
+  const contentBottom = pageHeight - 35; // Above footer
+
+  // Project title area
+  doc.setFillColor(255, 255, 255);
+  doc.rect(15, contentTop, pageWidth - 30, 80, 'F');
+
+  doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('DM+', 40, 55);
-
-  doc.setTextColor(255, 255, 255);
-  doc.text('COM. & MARKETING', 75, 55);
+  doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, contentTop + 15, { align: 'center' });
 
   doc.setFontSize(14);
+  doc.text('Site Internet', pageWidth / 2, contentTop + 25, { align: 'center' });
+
+  // Project info
+  doc.setFontSize(12);
+  doc.text('PROJET:', 25, contentTop + 45);
+
+  doc.setFontSize(16);
+  doc.text(formData.nomProjet || 'Nom du projet', 25, contentTop + 55);
+
+  doc.setFontSize(12);
+  doc.text('CLIENT:', 25, contentTop + 70);
+
+  doc.setFontSize(16);
+  doc.text(formData.nomEntreprise || 'Nom de l\'entreprise', 25, contentTop + 80);
+
+  // Date
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Digital Mind+ Group', pageWidth / 2, 65, { align: 'center' });
-
-  doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
-  doc.line(40, 75, pageWidth - 40, 75);
-
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth / 2, 85, { align: 'center' });
-
-  doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
-  doc.setFontSize(18);
-  doc.text('Site Internet', pageWidth / 2, 95, { align: 'center' });
+  doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, pageWidth - 25, contentTop + 80, { align: 'right' });
 
   // Info Boxes
   const boxWidth = (pageWidth - 40) / 3;
-  const boxY = 115;
+  const boxY = contentTop + 100;
 
   const drawBox = (x: number, title: string, value: string) => {
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
@@ -109,6 +160,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
   // Mode d'emploi
   doc.setFillColor(248, 249, 251);
+  doc.rect(15, contentBottom - 25, pageWidth - 30, 25, 'F');
   doc.rect(15, 145, pageWidth - 30, 25, 'F');
   doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setLineWidth(1);
@@ -125,15 +177,15 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   const modeText = "Ce brief est confidentiel et destiné à recueillir toutes les informations nécessaires à la conception de votre site internet. Plus vos réponses seront précises, plus notre proposition sera adaptée à vos besoins réels.";
   doc.text(doc.splitTextToSize(modeText, pageWidth - 45), 20, 158);
 
-  addHeaderFooter(1, 1);
+  addHeaderFooter(1, 10);
 
   // --- PAGE 2: INFORMATIONS CLIENT ---
   doc.addPage();
-  addHeaderFooter(2, 6);
-  addSectionHeader('01', "INFORMATIONS SUR LE CLIENT & L'ENTREPRISE", 20);
+  addHeaderFooter(2, 10);
+  addSectionHeader('01', "INFORMATIONS SUR LE CLIENT & L'ENTREPRISE", 50);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 65,
     head: [],
     body: [
       ['Nom de l\'entreprise', formData.nomEntreprise],
@@ -180,11 +232,11 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
   // --- PAGE 4: BUDGET & DÉLAIS ---
   doc.addPage();
-  addHeaderFooter(3, 6);
-  addSectionHeader('03', "BUDGET & DÉLAIS", 20);
+  addHeaderFooter(4, 10);
+  addSectionHeader('03', "BUDGET & DÉLAIS", 50);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 65,
     head: [],
     body: [
       ['Budget global envisagé', renderOptions(['Moins de 500 000 FCFA', '500 000 - 1 500 000 FCFA', '1 500 000 - 3 000 000 FCFA', '3 000 000 - 5 000 000 FCFA', 'Plus de 5 000 000 FCFA', 'À définir ensemble'], formData.budgetGlobal)],
@@ -225,11 +277,11 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
   // --- PAGE 6: CONTENU ---
   doc.addPage();
-  addHeaderFooter(4, 6);
-  addSectionHeader('05', "CONTENU DU SITE", 20);
+  addHeaderFooter(6, 10);
+  addSectionHeader('05', "CONTENU DU SITE", 50);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 65,
     head: [],
     body: [
       ['Qui rédige les textes ?', renderOptions(['Le client fournit tous les textes', 'DM+ Com rédige l\'ensemble (prestation supplémentaire)', 'Rédaction partagée - à définir page par page', 'Textes partiellement existants - à compléter'], formData.redacteurTextes)],
@@ -269,11 +321,11 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   });
 
   doc.addPage();
-  addHeaderFooter(5, 6);
-  addSectionHeader('07', "FONCTIONNALITÉS SOUHAITÉES", 20);
+  addHeaderFooter(7, 10);
+  addSectionHeader('07', "FONCTIONNALITÉS SOUHAITÉES", 50);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 65,
     head: [],
     body: [
       ['Fonctionnalités à intégrer', renderOptions(['Formulaire de contact', 'Prise de rendez-vous (Calendly...)', 'Paiement en ligne (Stripe...)', 'Espace client / Compte utilisateur', 'Newsletter / Emailing', 'Blog / Actualités', 'Galerie photos / vidéos', 'Carte / Géolocalisation', 'Chat en ligne', 'Multi-langue', 'Statistiques intégrées', 'Autre (préciser)'], formData.fonctionnalitesIntegrer) + (formData.fonctionnaliteAutre ? `\n(Autre: ${formData.fonctionnaliteAutre})` : '')],
@@ -311,13 +363,37 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     }
   });
 
-  // --- PAGE 9: MAINTENANCE ---
+  // --- PAGE 8: SEO & RÉFÉRENCEMENT ---
   doc.addPage();
-  addHeaderFooter(6, 6);
-  addSectionHeader('09', "MAINTENANCE & ÉVOLUTION POST-LIVRAISON", 20);
+  addHeaderFooter(8, 10);
+  addSectionHeader('08', "SEO & RÉFÉRENCEMENT", 50);
 
   autoTable(doc, {
-    startY: 35,
+    startY: 65,
+    head: [],
+    body: [
+      ['Objectifs SEO', renderOptions(['Référencement local (géolocalisé)', 'Référencement national', 'Référencement international', 'Référencement e-commerce', 'Référencement sur moteurs spécialisés'], formData.objectifsSEO)],
+      ['Mots-clés principaux', formData.motsClesPrincipaux],
+      ['Positionnement souhaité', formData.positionnementSouhaite],
+      ['Concurrence SEO', formData.concurrenceSEO],
+      ['Budget SEO mensuel', renderOptions(['Moins de 50 000 FCFA', '50 000 - 100 000 FCFA', '100 000 - 200 000 FCFA', 'Plus de 200 000 FCFA', 'À définir'], formData.budgetSEOMensuel)],
+      ['Actions SEO envisagées', renderOptions(['Optimisation on-page', 'Création de contenu', 'Netlinking', 'SEO local', 'SEO technique', 'Autre (préciser)'], formData.actionsSEO) + (formData.actionsSEOAUTRE ? `\n(Autre: ${formData.actionsSEOAUTRE})` : '')],
+    ],
+    theme: 'grid',
+    styles: { fontSize: 9, cellPadding: 5 },
+    columnStyles: {
+      0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
+      1: { cellWidth: pageWidth - 90 }
+    }
+  });
+
+  // --- PAGE 9: MAINTENANCE ---
+  doc.addPage();
+  addHeaderFooter(9, 10);
+  addSectionHeader('09', "MAINTENANCE & ÉVOLUTION POST-LIVRAISON", 50);
+
+  autoTable(doc, {
+    startY: 65,
     head: [],
     body: [
       ['Maintenance souhaitée', renderOptions(['Maintenance corrective incluse (3 mois)', 'Contrat de maintenance mensuel DM+ Tech', 'Gestion autonome par le client', 'À définir après livraison'], formData.maintenanceSouhaitee)],
@@ -334,7 +410,9 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   });
 
   // --- PAGE 10: ANALYSE CONCURRENTIELLE ---
-  addSectionHeader('10', "ANALYSE CONCURRENTIELLE", (doc as any).lastAutoTable.finalY + 10);
+  doc.addPage();
+  addHeaderFooter(10, 10);
+  addSectionHeader('10', "ANALYSE CONCURRENTIELLE", 50);
 
   const concurrentsBody = formData.concurrents.filter(c => c.nom).map((c, i) => [
     `Concurrent ${i + 1}`,
@@ -342,7 +420,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   ]);
 
   autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 25,
+    startY: 65,
     head: [],
     body: concurrentsBody.length > 0 ? concurrentsBody : [['Aucun concurrent renseigné', '']],
     theme: 'grid',
