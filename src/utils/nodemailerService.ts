@@ -29,7 +29,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
 
     doc.setTextColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.setFont('helvetica', 'normal');
-    doc.text('Brief de Développement — Site Internet', pageWidth - 15, 10, { align: 'right' });
+    doc.text('Brief de Développement - Site Internet', pageWidth - 15, 10, { align: 'right' });
 
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setLineWidth(0.5);
@@ -39,7 +39,15 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     doc.setDrawColor(brandGray[0], brandGray[1], brandGray[2]);
     doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
     doc.setFontSize(7);
-    doc.text('communication@dmplus-group.com |  +221 76 663 82 20|  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('communication@dmplus-group.com  |  +221 76 619 34 10 / 33 829 58 06  |  Médina rue 37x24, Dakar  Document confidentiel', pageWidth / 2, pageHeight - 10, { align: 'center' });
+  };
+
+  // Helper for options with checkboxes
+  const renderOptions = (options: string[], selected: string | string[]) => {
+    return options.map(opt => {
+      const isChecked = Array.isArray(selected) ? selected.includes(opt) : selected === opt;
+      return `${isChecked ? '[x]' : '[ ]'} ${opt}`;
+    }).join('\n');
   };
 
   const addSectionHeader = (num: string, title: string, y: number) => {
@@ -52,11 +60,10 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   };
 
   // --- PAGE 1: COVER ---
-  // Black Banner avec logo DM+ (exactement comme votre exemple)
+  // Black Banner
   doc.setFillColor(brandDark[0], brandDark[1], brandDark[2]);
   doc.rect(15, 30, pageWidth - 30, 60, 'F');
 
-  // Logo DM+ exactement comme votre exemple
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(32);
   doc.setFont('helvetica', 'bold');
@@ -115,7 +122,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   doc.setTextColor(brandDark[0], brandDark[1], brandDark[2]);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
-  const modeText = "Ce brief est confidentiel et destiné à recueillir toutes les informations nécessaires à la conception de votre site internet. Plus vos réponses seront précises, plus notre proposition sera adaptée à vos besoins réels. Les champs marqués comme obligatoires doivent être remplis.";
+  const modeText = "Ce brief est confidentiel et destiné à recueillir toutes les informations nécessaires à la conception de votre site internet. Plus vos réponses seront précises, plus notre proposition sera adaptée à vos besoins réels.";
   doc.text(doc.splitTextToSize(modeText, pageWidth - 45), 20, 158);
 
   addHeaderFooter(1, 1);
@@ -136,8 +143,8 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
       ['Fonction / Titre', formData.fonctionTitre],
       ['Email de contact', formData.emailContact],
       ['Téléphone', formData.telephone],
-      ['Taille de l\'entreprise', formData.tailleEntreprise],
-      ['Phase de l\'entreprise', formData.phaseEntreprise],
+      ['Taille de l\'entreprise', renderOptions(['Indépendant / Freelance', 'TPE (1-9 employés)', 'PME (10-49 employés)', 'ETI (50-250 employés)', 'Grand groupe (250+)'], formData.tailleEntreprise)],
+      ['Phase de l\'entreprise', renderOptions(['Lancement / Startup', 'En croissance', 'Établie / Mature', 'En restructuration / Pivot'], formData.phaseEntreprise)],
       ['Description de l\'activité', formData.descriptionActivite],
       ['En quoi vous êtes différent', formData.differenceConcurrents],
     ],
@@ -156,12 +163,12 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     startY: (doc as any).lastAutoTable.finalY + 25,
     head: [],
     body: [
-      ['Objectifs principaux du site', formData.objectifPrincipal.length > 0 ? formData.objectifPrincipal.join(', ') + (formData.objectifAutre ? ` (${formData.objectifAutre})` : '') : 'Non spécifié'],
-      ['Cible principale du site', formData.ciblePrincipale],
+      ['Objectif principal du site', renderOptions(['Crédibiliser / légitimer l\'entreprise', 'Générer des contacts / leads qualifiés', 'Présenter les produits / services', 'Support à la prospection commerciale', 'Vendre en ligne (e-commerce)', 'Recrutement', 'Autre'], formData.objectifPrincipal) + (formData.objectifAutre ? `\n(Autre: ${formData.objectifAutre})` : '')],
+      ['Cible principale du site', renderOptions(['Grandes entreprises / Groupes internationaux', 'PME / ETI', 'Investisseurs / Fonds', 'Particuliers (B2C)', 'Institutions / ONG / Secteur public', 'Partenaires / Distributeurs'], formData.ciblePrincipale)],
       ['Zones géographiques cibles', formData.zonesGeographiques],
       ['Message clé du site', formData.messageCle],
       ['Objectifs à 12 mois via le site', formData.objectifs12Mois],
-      ['Ton et style souhaités', formData.tonStyle.join(', ')],
+      ['Ton et style souhaités', renderOptions(['Professionnel & institutionnel', 'Moderne & dynamique', 'Premium & haut de gamme', 'Accessible & humain', 'Technique & expert', 'Minimaliste & sobre'], formData.tonStyle)],
     ],
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 5 },
@@ -180,9 +187,9 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     startY: 35,
     head: [],
     body: [
-      ['Budget global envisagé', formData.budgetGlobal],
-      ['Modalités de paiement', formData.modalitesPaiement + (formData.modaliteAutre ? ` (${formData.modaliteAutre})` : '')],
-      ['Délai de livraison souhaité', formData.delaiLivraison],
+      ['Budget global envisagé', renderOptions(['Moins de 500 000 FCFA', '500 000 - 1 500 000 FCFA', '1 500 000 - 3 000 000 FCFA', '3 000 000 - 5 000 000 FCFA', 'Plus de 5 000 000 FCFA', 'À définir ensemble'], formData.budgetGlobal)],
+      ['Modalités de paiement', renderOptions(['100% à la commande', '50% commande / 50% livraison', '30% / 40% / 30% (jalons)', 'Autre (préciser)'], formData.modalitesPaiement) + (formData.modaliteAutre ? `\n(Autre: ${formData.modaliteAutre})` : '')],
+      ['Délai de livraison souhaité', renderOptions(['Urgent - moins de 2 semaines', 'Standard - 3 à 5 semaines', 'Flexible - 6 à 8 semaines', 'Pas de contrainte particulière'], formData.delaiLivraison)],
       ['Date de mise en ligne souhaitée', formData.dateMiseEnLigne],
       ['Contraintes particulières', formData.contraintesParticulieres],
     ],
@@ -202,11 +209,11 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     head: [],
     body: [
       ['Nom de domaine souhaité', formData.nomDomaineSouhaite],
-      ['Statut du nom de domaine', formData.statutDomaine],
-      ['CMS préféré', formData.cmsPrefere + (formData.cmsAutre ? ` (${formData.cmsAutre})` : '')],
-      ['Hébergement', formData.hebergement],
+      ['Statut du nom de domaine', renderOptions(['Déjà enregistré - je le fournis', 'À vérifier et enregistrer par DM+', 'Je ne sais pas - besoin de conseil'], formData.statutDomaine)],
+      ['CMS préféré', renderOptions(['Webflow (recommandé premium)', 'WordPress', 'Pas de préférence - conseiller DM+', 'Autre (préciser)'], formData.cmsPrefere) + (formData.cmsAutre ? `\n(Autre: ${formData.cmsAutre})` : '')],
+      ['Hébergement', renderOptions(['Inclus dans la prestation DM+', 'J\'ai déjà un hébergeur', 'À définir'], formData.hebergement)],
       ['Nom de l\'hébergeur actuel', formData.hebergeurActuel],
-      ['Langues du site', formData.languesSite + (formData.langueAutre ? ` (${formData.langueAutre})` : '')],
+      ['Langues du site', renderOptions(['Français uniquement', 'Anglais uniquement', 'Français + Anglais', 'Autre combinaison (préciser)'], formData.languesSite) + (formData.langueAutre ? `\n(Autre: ${formData.langueAutre})` : '')],
     ],
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 5 },
@@ -225,10 +232,10 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     startY: 35,
     head: [],
     body: [
-      ['Qui rédige les textes ?', formData.redacteurTextes],
-      ['Qui fournit les visuels ?', formData.fournisseurVisuels],
-      ['Avez-vous un logo ?', formData.avezLogo],
-      ['Avez-vous une charte ?', formData.avezCharte],
+      ['Qui rédige les textes ?', renderOptions(['Le client fournit tous les textes', 'DM+ Com rédige l\'ensemble (prestation supplémentaire)', 'Rédaction partagée - à définir page par page', 'Textes partiellement existants - à compléter'], formData.redacteurTextes)],
+      ['Qui fournit les visuels ?', renderOptions(['Le client fournit photos et visuels', 'DM+ intègre une banque d\'images premium', 'Shooting photo à prévoir (prestation supplémentaire)', 'Mix des deux'], formData.fournisseurVisuels)],
+      ['Avez-vous un logo ?', renderOptions(['Oui - fichiers HD disponibles (AI, EPS, PNG)', 'Oui - uniquement en basse résolution', 'Non - création de logo à prévoir', 'En cours de création'], formData.avezLogo)],
+      ['Avez-vous une charte ?', renderOptions(['Oui - charte complète disponible', 'Oui - charte partielle / en cours', 'Non - liberté laissée au designer DM+', 'Non - à créer (prestation supplémentaire)'], formData.avezCharte)],
       ['Couleurs souhaitées', formData.couleursSouhaitees],
       ['Typographie souhaitée', formData.typographieSouhaitee],
       ['Sites de référence appréciés', formData.sitesReference],
@@ -243,13 +250,13 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   });
 
   // --- PAGE 7: STRUCTURE & FONCTIONNALITÉS ---
-  addSectionHeader('06', "STRUCTURE DU SITE — PAGES SOUHAITÉES", (doc as any).lastAutoTable.finalY + 10);
+  addSectionHeader('06', "STRUCTURE DU SITE - PAGES SOUHAITÉES", (doc as any).lastAutoTable.finalY + 10);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
     head: [],
     body: [
-      ['Pages souhaitées', formData.pagesSouhaitees.join(', ') + (formData.pagesAutres ? ` (${formData.pagesAutres})` : '')],
+      ['Pages souhaitées', renderOptions(['Accueil / Home', 'À propos / Qui sommes-nous', 'Services / Expertises', 'Réalisations / Portfolio', 'Équipe', 'Zones géographiques', 'Actualités / Blog', 'Témoignages / Références', 'FAQ', 'Contact', 'Mentions légales', 'Autre (préciser)'], formData.pagesSouhaitees) + (formData.pagesAutres ? `\n(Autre: ${formData.pagesAutres})` : '')],
       ['Arborescence souhaitée', formData.arborescenceSouhaitee],
       ['Page(s) prioritaire(s)', formData.pagePrioritaire],
     ],
@@ -269,9 +276,9 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     startY: 35,
     head: [],
     body: [
-      ['Fonctionnalités à intégrer', formData.fonctionnalitesIntegrer.join(', ') + (formData.fonctionnaliteAutre ? ` (${formData.fonctionnaliteAutre})` : '')],
-      ['Réseaux sociaux à intégrer', formData.reseauxSociaux.join(', ')],
-      ['Adaptabilité mobile', formData.adaptabiliteMobile],
+      ['Fonctionnalités à intégrer', renderOptions(['Formulaire de contact', 'Prise de rendez-vous (Calendly...)', 'Paiement en ligne (Stripe...)', 'Espace client / Compte utilisateur', 'Newsletter / Emailing', 'Blog / Actualités', 'Galerie photos / vidéos', 'Carte / Géolocalisation', 'Chat en ligne', 'Multi-langue', 'Statistiques intégrées', 'Autre (préciser)'], formData.fonctionnalitesIntegrer) + (formData.fonctionnaliteAutre ? `\n(Autre: ${formData.fonctionnaliteAutre})` : '')],
+      ['Réseaux sociaux à intégrer', renderOptions(['LinkedIn', 'Instagram', 'Facebook', 'Twitter / X', 'YouTube', 'WhatsApp', 'Aucun'], formData.reseauxSociaux)],
+      ['Adaptabilité mobile', renderOptions(['Site responsive (obligatoire)', 'Application mobile envisagée (ultérieurement)'], formData.adaptabiliteMobile)],
       ['PWA (Progressive Web App)', formData.pwa ? 'Oui' : 'Non'],
     ],
     theme: 'grid',
@@ -282,44 +289,25 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     }
   });
 
-  // --- PAGE 8: MARKETING MIX ---
-  addSectionHeader('08', "MARKETING MIX", (doc as any).lastAutoTable.finalY + 10);
+  // --- PAGE 8: SEO & MARKETING ---
+  addSectionHeader('08', "RÉFÉRENCEMENT & MARKETING DIGITAL", (doc as any).lastAutoTable.finalY + 10);
 
   autoTable(doc, {
     startY: (doc as any).lastAutoTable.finalY + 25,
     head: [],
     body: [
-      ['Objectifs Marketing', formData.marketingMix.objectifsMarketing.length > 0 ? formData.marketingMix.objectifsMarketing.join(', ') : 'Non spécifié'],
-      ['Budget Marketing Mensuel', formData.marketingMix.budgetMarketing || 'Non spécifié'],
-      ['Canaux Prioritaires', formData.marketingMix.canauxPrioritaires.length > 0 ? formData.marketingMix.canauxPrioritaires.join(', ') : 'Non spécifié'],
-      ['Contenu Marketing', formData.marketingMix.contenuMarketing || 'Non spécifié'],
-      ['Fréquence Publication', formData.marketingMix.frequencePublication || 'Non spécifié'],
-      ['KPIs Principaux', formData.marketingMix.kpisPrincipaux || 'Non spécifié'],
+      ['SEO - Référencement naturel', renderOptions(['SEO de base inclus (obligatoire)', 'SEO avancé (prestation supplémentaire)', 'Pas prioritaire pour l\'instant'], formData.seoNaturel)],
+      ['Mots-clés prioritaires\nLister 5 à 10 mots-clés sur lesquels vous souhaitez être trouvé sur Google', formData.motsClesPrioritaires],
+      ['Google Analytics / Suivi statistiques', renderOptions(['Oui - à intégrer', 'Déjà un compte - à connecter', 'Non - pas nécessaire'], formData.googleAnalytics)],
+      ['Google Ads / Publicité payante', renderOptions(['Oui - à envisager', 'Non - pas prioritaire', 'À étudier ultérieurement'], formData.googleAds)],
+      ['Campagne emailing', renderOptions(['Oui - à intégrer dès le lancement', 'Peut-être - phase ultérieure', 'Non'], formData.campagneEmailing)],
+      ['Réseaux sociaux - gestion de contenu', renderOptions(['Oui - prestation community management DM+ Com', 'Géré en interne', 'Non - pas concerné'], formData.gestionReseauxSociaux)],
     ],
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 5 },
     columnStyles: {
       0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
-      1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
-    }
-  });
-
-  // Services Additionnels
-  autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 15,
-    head: [['Services Marketing Additionnels', 'Sélection']],
-    body: [
-      ['SEO Stratégique', formData.seoStrategique],
-      ['Campagnes PPC', formData.campagnesPPC],
-      ['Email Marketing', formData.emailMarketing],
-      ['Mobile Strategy', formData.mobileStrategy],
-    ],
-    theme: 'grid',
-    styles: { fontSize: 9, cellPadding: 5 },
-    headStyles: { fillColor: [227, 30, 36], textColor: 255, fontStyle: 'bold' },
-    columnStyles: {
-      0: { fillColor: [248, 249, 251], fontStyle: 'bold', cellWidth: 60 },
-      1: { fillColor: [255, 255, 255], cellWidth: 'auto' }
+      1: { cellWidth: pageWidth - 90 }
     }
   });
 
@@ -332,9 +320,9 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
     startY: 35,
     head: [],
     body: [
-      ['Maintenance souhaitée', formData.maintenanceSouhaitee],
-      ['Mises à jour du contenu', formData.misesAJour],
-      ['Évolutions futures envisagées', formData.evolutionsFutures],
+      ['Maintenance souhaitée', renderOptions(['Maintenance corrective incluse (3 mois)', 'Contrat de maintenance mensuel DM+ Tech', 'Gestion autonome par le client', 'À définir après livraison'], formData.maintenanceSouhaitee)],
+      ['Mises à jour du contenu', renderOptions(['Client autonome (formation back-office incluse)', 'Délégation à DM+ Com (abonnement mensuel)', 'Au cas par cas (facturation séparée)'], formData.misesAJour)],
+      ['Évolutions futures envisagées', renderOptions(['Ajout de nouvelles pages', 'Intégration e-commerce', 'Application mobile', 'Espace membre / plateforme', 'Aucune évolution prévue'], formData.evolutionsFutures)],
       ['Autres informations utiles', formData.autresInfosUtiles],
     ],
     theme: 'grid',
@@ -368,7 +356,7 @@ const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean = false
   if (returnAsBlob) {
     return new Blob([doc.output('blob')], { type: 'application/pdf' });
   } else {
-    doc.save(`Convention_${formData.nomEntreprise}_DM_Invest.pdf`);
+    doc.save(`Brief_DigitalMind_${formData.nomEntreprise.replace(/\s+/g, '_') || 'Projet'}.pdf`);
     return new Blob([doc.output('blob')], { type: 'application/pdf' });
   }
 };
