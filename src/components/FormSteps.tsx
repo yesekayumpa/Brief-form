@@ -1183,7 +1183,40 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
         <h3 className="form-label mb-6 !text-brand-red !font-bold">
           Type de site internet
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 mb-2">
+            Type de site :
+          </label>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <input
+                id="site-marchand"
+                checked={formData.typeSite === "marchand"}
+                onChange={() => updateFormData({ typeSite: "marchand" })}
+                className="w-5 h-5 rounded border-gray-300 text-brand-red focus:ring-brand-red"
+                type="radio"
+                name="site-type"
+              />
+              <label for="site-marchand" className="text-sm text-gray-700">
+                Site marchand
+              </label>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                id="site-vitrine"
+                checked={formData.typeSite === "vitrine"}
+                onChange={() => updateFormData({ typeSite: "vitrine" })}
+                className="w-5 h-5 rounded border-gray-300 text-brand-red focus:ring-brand-red"
+                type="radio"
+                name="site-type"
+              />
+              <label for="site-vitrine" className="text-sm text-gray-700">
+                Site vitrine
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="space-y-4 mt-6">
           <div className="flex items-center gap-3">
             <input
               id="cms-existant"
@@ -1223,39 +1256,6 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
             <label for="base-donnees" className="text-sm text-gray-700">
               Avez-vous une base de données ?
             </label>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 mb-2">
-              Type de site :
-            </label>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <input
-                  id="site-marchand"
-                  checked={formData.typeSite === "marchand"}
-                  onChange={() => updateFormData({ typeSite: "marchand" })}
-                  className="w-5 h-5 rounded border-gray-300 text-brand-red focus:ring-brand-red"
-                  type="radio"
-                  name="site-type"
-                />
-                <label for="site-marchand" className="text-sm text-gray-700">
-                  Site marchand
-                </label>
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  id="site-vitrine"
-                  checked={formData.typeSite === "vitrine"}
-                  onChange={() => updateFormData({ typeSite: "vitrine" })}
-                  className="w-5 h-5 rounded border-gray-300 text-brand-red focus:ring-brand-red"
-                  type="radio"
-                  name="site-type"
-                />
-                <label for="site-vitrine" className="text-sm text-gray-700">
-                  Site vitrine
-                </label>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -1336,7 +1336,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
                   : ""
               }`}
             >
-              <span className="font-bold uppercase tracking-widest text-[10px]">
+              <span className="font-bold uppercase tracking-widest text-[10px] text-left">
                 {feature.name}
               </span>
               <div
@@ -1375,7 +1375,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
         value={formData.arborescenceSouhaitee}
       >
         <textarea
-          className="field-input min-h-[80px] py-4 resize-none"
+          className="field-input min-h-[60px] py-4 resize-none"
           value={formData.arborescenceSouhaitee}
           onChange={(e) =>
             updateFormData({ arborescenceSouhaitee: e.target.value })
@@ -1387,7 +1387,7 @@ export const Step6 = ({ formData, updateFormData }: StepProps) => (
         value={formData.pagePrioritaire}
       >
         <input
-          className="field-input"
+          className="field-input min-h-[60px]"
           value={formData.pagePrioritaire}
           onChange={(e) => updateFormData({ pagePrioritaire: e.target.value })}
         />

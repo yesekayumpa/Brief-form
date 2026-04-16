@@ -38,12 +38,6 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
     doc.setFontSize(10);
     
 
-    // Titre du document à droite
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BRIEF DE DÉVELOPPEMENT', pageWidth - 15, 17, { align: 'right' });
-    doc.setFont('helvetica', 'normal');
-
     // Ligne de séparation
     doc.setDrawColor(brandRed[0], brandRed[1], brandRed[2]);
     doc.setLineWidth(1);
@@ -140,7 +134,6 @@ export const generateBriefPDF = (formData: BriefFormData, returnAsBlob: boolean 
 
   doc.setTextColor(brandRed[0], brandRed[1], brandRed[2]);
   doc.setFontSize(18);
-  doc.text('Site Internet', pageWidth / 2, 100, { align: 'center' });
 
   // Info Boxes
   const boxWidth = (pageWidth - 40) / 3;
