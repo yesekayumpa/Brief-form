@@ -11,9 +11,10 @@ interface ProjectInitializedProps {
   onModify: () => void;
   onNewProject: () => void;
   userName: string;
+  userEmail: string;
 }
 
-export default function ProjectInitialized({ formData, onModify, onNewProject, userName }: ProjectInitializedProps) {
+export default function ProjectInitialized({ formData, onModify, onNewProject, userName, userEmail }: ProjectInitializedProps) {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [emailMessage, setEmailMessage] = useState('');
@@ -88,7 +89,7 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
         const result = await sendBriefEmailWithNodemailer({
           formData,
           userName,
-          userEmail: formData.email || 'non spécifié'
+          userEmail: userEmail || 'non spécifié'
         });
 
         if (result.success) {
@@ -182,7 +183,7 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
         const result = await sendBriefEmailWithNodemailer({
           formData,
           userName,
-          userEmail: formData.email || 'non spécifié'
+          userEmail: userEmail || 'non spécifié'
         });
 
         if (result.success) {
@@ -239,6 +240,27 @@ Contact: 76 663 82 20 | communication@dmplus-group.com`;
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white" />
+            </div>
+
+            {/* Bouton Envoyer */}
+            <div className="relative z-10 mb-6">
+              <button 
+                onClick={handleSend}
+                disabled={isSendingEmail}
+                className="btn-primary flex items-center gap-2 mx-auto"
+              >
+                {isSendingEmail ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-5 h-5" />
+                    Envoyer
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="relative z-10">

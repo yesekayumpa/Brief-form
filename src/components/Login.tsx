@@ -4,7 +4,7 @@ import { Eye, EyeOff, Lock, Mail, User, ArrowRight, ShieldCheck } from 'lucide-r
 import BorderGlow from './BorderGlow';
 
 interface LoginProps {
-  onLogin: (success: boolean, userName?: string) => void;
+  onLogin: (success: boolean, userName?: string, userEmail?: string) => void;
 }
 
 export default function Login({ onLogin }: LoginProps) {
@@ -69,14 +69,50 @@ export default function Login({ onLogin }: LoginProps) {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    setSuccess('');
 
-    // Pas de validation pour les tests
+    // Validation des champs
+    if (!fullName) {
+      setError('Le nom complet est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!email) {
+      setError('L\'adresse email est requise');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError('Le mot de passe est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validation de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      setIsLoading(false);
+      return;
+    }
 
     // Sauvegarder les informations si "Se souvenir de moi" est coché
     saveUserData(fullName, email, password, rememberMe);
 
-    // Simuler une inscription réussie
+    // Simuler une inscription (pour démo)
     setTimeout(() => {
       setSuccess('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
       setIsLoginMode(true); // Basculer vers le mode connexion
@@ -93,15 +129,39 @@ export default function Login({ onLogin }: LoginProps) {
     setIsLoading(true);
     setError('');
 
-    // Pas de validation pour les tests
+    // Validation des champs (tous les champs requis pour la connexion)
+    if (!fullName) {
+      setError('Le nom complet est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!email) {
+      setError('L\'adresse email est requise');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError('Le mot de passe est requis');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validation de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Veuillez entrer une adresse email valide');
+      setIsLoading(false);
+      return;
+    }
 
     // Sauvegarder les informations si "Se souvenir de moi" est coché
     saveUserData(fullName, email, password, rememberMe);
 
     // Simuler une authentification (pour démo)
     setTimeout(() => {
-      // Authentification simple pour démo - accepte n'importe quel email et mot de passe valide
-      onLogin(true, fullName || 'Utilisateur Test');
+      onLogin(true, fullName || 'Utilisateur Test', email);
       setIsLoading(false);
     }, 1500);
   };
@@ -186,10 +246,10 @@ export default function Login({ onLogin }: LoginProps) {
 
               {/* Form */}
               <form onSubmit={isLoginMode ? handleSubmit : handleRegister} className="space-y-4">
-                {/* Full Name Field */}
+                {/* Full Name Field - Required for both login and registration */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                    Nom Complet
+                    Nom Complet <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -205,10 +265,15 @@ export default function Login({ onLogin }: LoginProps) {
                   </div>
                 </div>
 
+                {/* Form Helper */}
+                <div className="text-xs text-slate-500 text-center mb-4">
+                  Tous les champs sont obligatoires pour {isLoginMode ? 'la connexion' : 'l\'inscription'}
+                </div>
+
                 {/* Email Field */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                    Email Professionnel
+                    Email Professionnel <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -227,7 +292,7 @@ export default function Login({ onLogin }: LoginProps) {
                 {/* Password Field */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                    Mot de Passe
+                    Mot de Passe <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">

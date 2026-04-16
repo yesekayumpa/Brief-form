@@ -32,6 +32,7 @@ const stepImages = [
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -39,21 +40,31 @@ export default function App() {
   const [isProjectInitialized, setIsProjectInitialized] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleLogin = (success: boolean, name?: string) => {
+  const handleLogin = (success: boolean, name?: string, email?: string) => {
     setIsAuthenticated(success);
     if (success && name) {
       setUserName(name);
+    }
+    if (success && email) {
+      setUserEmail(email);
+      // Mettre à jour formData avec l'email du client
+      setFormData(prev => ({
+        ...prev,
+        email: email
+      }));
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserName('');
+    setUserEmail('');
     setStep(1);
     setFormData(initialFormData);
     setTouched({});
     setErrors({});
     setIsProjectInitialized(false);
+    setIsHovered(false);
   };
 
   const handleModify = () => {
@@ -220,6 +231,7 @@ export default function App() {
         onModify={handleModify} 
         onNewProject={handleNewProject}
         userName={userName}
+        userEmail={userEmail}
       />);
   }
 
