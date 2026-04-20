@@ -86,7 +86,7 @@ Password: DMP-group2-com
 
 ---
 
-## 🌐 Accès et Test
+## Accès et Test
 
 ### URLs:
 - **Site principal**: `https://votre-domaine.com`
